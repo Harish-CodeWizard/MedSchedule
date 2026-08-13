@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import connectDB from './database/dbConnection.js';
 import cookieParser from "cookie-parser";
 import userRouter from './routers/userRoute.js';
 import patientRouter from './routers/patientRoute.js';
@@ -54,9 +53,6 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
-
-// DB
-connectDB();
 
 // Routes
 app.get('/', (req, res) => {
