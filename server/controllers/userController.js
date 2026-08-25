@@ -6,17 +6,30 @@ dotenv.config();
 import nodemailer from "nodemailer";
 import { sendToken } from '../utils/sendToken.js';
 import Patient from '../models/PatientModel.js';
+import { normalizeRole, ROLE_GROUPS } from '../middleware/auth.js';
+
+const normalizeIncomingRole = (role) => {
+  const map = {
+    "ADMIN/RECEPTIONIST": "Reception",
+    "PHARMACIST": "Pharmacy",
+    "DOCTOR": "Doctor",
+    "PATIENT": "Patient",
+  };
+
+  return map[role] || role;
+};
 
 // REGISTER
 export const registerUser = catchAsyncError(async (req, res, next) => {
 
 
-const { name, email, password,role,uniqueId } = req.body;
+const { name, email, password, role, uniqueId } = req.body;
+const selectedRole = normalizeIncomingRole(role);
 
-if (!name || !email || !password || !role || !uniqueId) {
+if (!name || !email || !password || !selectedRole || !uniqueId) {
   return next(new ErrorHandler("All fields required", 400));
 }
-console.log(name, email, password,role,uniqueId)
+console.log(name, email, password, selectedRole, uniqueId)
 const emailRegex = /^\S+@\S+\.\S+$/;
 if (!emailRegex.test(email)) {
   return next(new ErrorHandler("Invalid email format", 400));
@@ -33,37 +46,37 @@ const IDS = {
   Pharmacy: process.env.PHARMACY,
 };
 
-if (role === "Admin") {
+if (selectedRole === "Admin") {
   if (uniqueId !== IDS.Admin) {
     return next(new ErrorHandler("Invalid Admin UniqueID", 400));
   }
 } 
-else if (role === "Reception") {
+else if (selectedRole === "Reception") {
   if (uniqueId !== IDS.Reception) {
     return next(new ErrorHandler("Invalid Reception UniqueID", 400));
   }
 } 
-else if (role === "Doctor") {
+else if (selectedRole === "Doctor") {
   if (uniqueId !== IDS.Doctor) {
     return next(new ErrorHandler("Invalid Doctor UniqueID", 400));
   }
 } 
-else if (role === "Lab") {
+else if (selectedRole === "Lab") {
   if (uniqueId !== IDS.Lab) {
     return next(new ErrorHandler("Invalid Lab UniqueID", 400));
   }
 } 
-else if (role === "X-Ray") {
+else if (selectedRole === "X-Ray") {
   if (uniqueId !== IDS["X-Ray"]) {
     return next(new ErrorHandler("Invalid X-Ray UniqueID", 400));
   }
 } 
-else if (role === "Pharmacy") {
+else if (selectedRole === "Pharmacy") {
   if (uniqueId !== IDS.Pharmacy) {
     return next(new ErrorHandler("Invalid Pharmacy UniqueID", 400));
   }
 } 
-else if (role === "Patient") {
+else if (selectedRole === "Patient") {
     const patient = await Patient.findOne({uniqueID:uniqueId});
  if(!patient){
     return next(new ErrorHandler("Invalid Patient UniqueID", 400));
@@ -88,7 +101,7 @@ if (existingUser && existingUser.verified) {
 if (existingUser && !existingUser.verified) {
   existingUser.name = name;
   existingUser.password = password; // will be hashed by pre-save
-  existingUser.role = role;
+  existingUser.role = selectedRole;
   existingUser.uniqueId = uniqueId;
   const verificationToken = existingUser.generateCode();
   await existingUser.save();
@@ -102,7 +115,7 @@ if (existingUser && !existingUser.verified) {
 }
 
 // Otherwise, create new user
-const newUser = new User({ name, email, password, role, uniqueId});
+const newUser = new User({ name, email, password, role: selectedRole, uniqueId});
 const verificationToken = newUser.generateCode();
 await newUser.save();
 await sendVerificationEmail(newUser.email, verificationToken);
@@ -471,6 +484,11 @@ export const getAllUsers = catchAsyncError(async (req, res, next) => {
 
 //      GET SINGLE USER 
 export const getUserById = catchAsyncError(async (req, res, next) => {
+  const normalizedRole = normalizeRole(req.user.role);
+  if (normalizedRole !== ROLE_GROUPS.ADMIN_RECEPTION && req.user._id.toString() !== req.params.id) {
+    return next(new ErrorHandler("You are not authorized to access this user.", 403));
+  }
+
   const user = await User.findById(req.params.id);
 
   if (!user) {

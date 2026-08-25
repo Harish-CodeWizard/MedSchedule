@@ -5,6 +5,7 @@ import { catchAsyncError } from "../middleware/catchAsyncError.js";
 import { cloudinary } from "../config/cloudinary.js";
 import { upload } from '../middleware/uploadMiddleware.js';
 import WalkInXray from "../models/walkinXrayModel.js";
+import { normalizeRole, ROLE_GROUPS } from "../middleware/auth.js";
 // Utility function to delete images from Cloudinary
 const deleteFromCloudinary = async (publicId) => {
   try {
@@ -173,6 +174,11 @@ export const getAllXrayRecords = catchAsyncError(async (req, res, next) => {
   const { page = 1, limit = 10, search = '', status = '', dateFrom = '', dateTo = '' } = req.query;
   
   let query = {};
+  const normalizedRole = normalizeRole(req.user?.role);
+
+  if (normalizedRole === ROLE_GROUPS.PATIENT) {
+    query.patientUniqueId = req.user?.uniqueId;
+  }
   
   // Search filter
   if (search) {
@@ -224,6 +230,11 @@ export const getXrayRecordById = catchAsyncError(async (req, res, next) => {
   
   if (!record) {
     return next(new ErrorHandler('X-ray record not found', 404));
+  }
+
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT && record.patientUniqueId !== req.user?.uniqueId) {
+    return next(new ErrorHandler('You are not authorized to access this x-ray record.', 403));
   }
   
   res.status(200).json({
@@ -363,6 +374,7 @@ export const searchXrayRecords = catchAsyncError(async (req, res, next) => {
   } = req.query;
   
   let query = {};
+  const normalizedRole = normalizeRole(req.user?.role);
   
   // Text search
   if (searchQuery) {
@@ -380,6 +392,10 @@ export const searchXrayRecords = catchAsyncError(async (req, res, next) => {
   if (doctorId) query.doctorId = doctorId;
   if (category) query.category = category;
   if (priority) query.priority = priority;
+
+  if (normalizedRole === ROLE_GROUPS.PATIENT) {
+    query.patientUniqueId = req.user?.uniqueId;
+  }
   
   // Date range filter
   if (dateFrom || dateTo) {

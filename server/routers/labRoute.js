@@ -6,11 +6,32 @@ import {
   createLabRecord,
   deleteLabRecord,
 } from '../controllers/labController.js';
+import { authenticateUser, authorizeRoles, ROLE_GROUPS } from "../middleware/auth.js";
 
 
-router.post('/', createLabRecord);
-router.get('/', getAllLabRecords);
-router.delete('/:id', deleteLabRecord);
+router.post(
+  '/',
+  authenticateUser,
+  authorizeRoles(ROLE_GROUPS.LAB, ROLE_GROUPS.DOCTOR, ROLE_GROUPS.ADMIN_RECEPTION),
+  createLabRecord
+);
+router.get(
+  '/',
+  authenticateUser,
+  authorizeRoles(
+    ROLE_GROUPS.LAB,
+    ROLE_GROUPS.DOCTOR,
+    ROLE_GROUPS.ADMIN_RECEPTION,
+    ROLE_GROUPS.PATIENT
+  ),
+  getAllLabRecords
+);
+router.delete(
+  '/:id',
+  authenticateUser,
+  authorizeRoles(ROLE_GROUPS.LAB, ROLE_GROUPS.ADMIN_RECEPTION),
+  deleteLabRecord
+);
 
 // router.get('/recent', getRecentActivities);
 // router.get('/pending', getPendingTests);
