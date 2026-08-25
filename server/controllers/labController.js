@@ -2,6 +2,7 @@ import Patient from "../models/PatientModel.js";
 import LabRecord from "../models/labRecordModel.js";
 import ErrorHandler from "../middleware/error.js";
 import { catchAsyncError } from "../middleware/catchAsyncError.js";
+import { normalizeRole, ROLE_GROUPS } from "../middleware/auth.js";
 
 
 
@@ -138,6 +139,11 @@ export const getAllLabRecords = catchAsyncError(async (req, res, next) => {
   const { page = 1, limit = 20, search = '', status = '', dateFrom = '', dateTo = '' } = req.query;
   
   let query = {};
+  const normalizedRole = normalizeRole(req.user?.role);
+
+  if (normalizedRole === ROLE_GROUPS.PATIENT) {
+    query.patientUniqueId = req.user?.uniqueId;
+  }
   
   // Search filter
   if (search) {
@@ -192,6 +198,11 @@ export const getLabRecordById = catchAsyncError(async (req, res, next) => {
   
   if (!record) {
     return next(new ErrorHandler('Lab record not found', 404));
+  }
+
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT && record.patientUniqueId !== req.user?.uniqueId) {
+    return next(new ErrorHandler('You are not authorized to access this lab record.', 403));
   }
   
   res.status(200).json({

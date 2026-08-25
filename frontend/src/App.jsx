@@ -34,10 +34,25 @@ import PatientDetailsByDoctor from "./pages/supportivePages/PatientDetailsByDoct
 import XrayPatientRegistration from "./pages/supportivePages/XrayPatientRegistration";
 import WalkInXrayRecords from "./pages/supportivePages/XrayWalkInRecord";
 
+const normalizeRole = (role) => {
+  const map = {
+    Admin: "ADMIN/RECEPTIONIST",
+    Reception: "ADMIN/RECEPTIONIST",
+    Doctor: "DOCTOR",
+    Pharmacy: "PHARMACIST",
+    Patient: "PATIENT",
+    Lab: "LAB",
+    "X-Ray": "XRAY",
+  };
+
+  return map[role] || role;
+};
+
 // ProtectedRoute component (role + auth based)
 const ProtectedRoute = ({ isAuth, userRole, allowedRoles, children }) => {
+  const normalizedRole = normalizeRole(userRole);
   if (!isAuth) return <Navigate to="/" />;
-  if (!allowedRoles.includes(userRole)) return <Navigate to="/" />;
+  if (!allowedRoles.includes(normalizedRole)) return <Navigate to="/" />;
   return children;
 };
 
@@ -72,7 +87,7 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['Admin','Reception','Doctor','Lab','X-Ray','Pharmacy','Patient']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['ADMIN/RECEPTIONIST','DOCTOR','LAB','XRAY','PHARMACIST','PATIENT']}>
               <ProfilePage />
             </ProtectedRoute>
           }
@@ -81,7 +96,7 @@ function App() {
         <Route
           path="/admin-dashboard"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['Admin']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['ADMIN/RECEPTIONIST']}>
               <Admin />
             </ProtectedRoute>
           }
@@ -90,7 +105,7 @@ function App() {
         <Route
           path="/reception-dashboard"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['Reception']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['ADMIN/RECEPTIONIST']}>
               <Reception />
             </ProtectedRoute>
           }
@@ -99,7 +114,7 @@ function App() {
         <Route
           path="/doctor-dashboard"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['Doctor']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['DOCTOR']}>
               <Doctor />
             </ProtectedRoute>
           }
@@ -111,7 +126,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['Doctor']}
+      allowedRoles={['DOCTOR']}
     >
       <Medicine />
     </ProtectedRoute>
@@ -123,7 +138,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['Doctor']}
+      allowedRoles={['DOCTOR']}
     >
       <RecommendTest />
     </ProtectedRoute>
@@ -135,7 +150,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['Doctor']}
+      allowedRoles={['DOCTOR']}
     >
       <RecommendXray />
     </ProtectedRoute>
@@ -147,7 +162,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['Pharmacy']}
+      allowedRoles={['PHARMACIST']}
     >
       <PharmacyRecords />
     </ProtectedRoute>
@@ -159,7 +174,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['Pharmacy']}
+      allowedRoles={['PHARMACIST']}
     >
       <WalkInPharmacyRecords />
     </ProtectedRoute>
@@ -171,7 +186,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['Lab']}
+      allowedRoles={['LAB']}
     >
       <LabTest />
     </ProtectedRoute>
@@ -184,7 +199,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['X-Ray']}
+      allowedRoles={['XRAY']}
     >
       <XrayTest />
     </ProtectedRoute>
@@ -197,7 +212,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['Doctor']}
+      allowedRoles={['DOCTOR']}
     >
       <PatientDetailsByDoctor />
     </ProtectedRoute>
@@ -210,7 +225,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['X-Ray']}
+      allowedRoles={['XRAY']}
     >
       <XrayPatientRegistration />
     </ProtectedRoute>
@@ -223,7 +238,7 @@ function App() {
     <ProtectedRoute
       isAuth={isAuth}
       userRole={user?.role}
-      allowedRoles={['X-Ray']}
+      allowedRoles={['XRAY']}
     >
       <WalkInXrayRecords />
     </ProtectedRoute>
@@ -235,7 +250,7 @@ function App() {
         <Route
           path="/lab-dashboard"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['Lab']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['LAB']}>
               <Lab />
             </ProtectedRoute>
           }
@@ -244,7 +259,7 @@ function App() {
         <Route
           path="/xray-dashboard"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['X-Ray']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['XRAY']}>
               <Xray />
             </ProtectedRoute>
           }
@@ -253,7 +268,7 @@ function App() {
         <Route
           path="/pharmacy-dashboard"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['Pharmacy']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['PHARMACIST']}>
               <Pharmacy />
             </ProtectedRoute>
           }
@@ -262,7 +277,7 @@ function App() {
         <Route
           path="/patient-dashboard"
           element={
-            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['Patient']}>
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['PATIENT']}>
               <Patient />
             </ProtectedRoute>
           }

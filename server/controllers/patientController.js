@@ -2,6 +2,7 @@ import Patient from "../models/PatientModel.js";
 import ErrorHandler from "../middleware/error.js";
 import { catchAsyncError } from "../middleware/catchAsyncError.js";
 import dotenv from "dotenv";
+import { normalizeRole, ROLE_GROUPS } from "../middleware/auth.js";
 
 dotenv.config();
 
@@ -33,6 +34,21 @@ export const createPatient = catchAsyncError(async (req, res, next) => {
 
 /* ================= GET ALL PATIENTS ================= */
 export const getAllPatients = catchAsyncError(async (req, res, next) => {
+  const normalizedRole = normalizeRole(req.user?.role);
+
+  if (normalizedRole === ROLE_GROUPS.PATIENT) {
+    const patient = await Patient.findOne({ uniqueID: req.user?.uniqueId });
+    if (!patient) {
+      return next(new ErrorHandler("Patient profile not found for this user.", 404));
+    }
+
+    return res.status(200).json({
+      success: true,
+      total: 1,
+      patients: [patient],
+    });
+  }
+
   const patients = await Patient.find().sort({ createdAt: -1 });
 
   res.status(200).json({
@@ -50,6 +66,11 @@ export const getPatientById = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Patient not found", 404));
   }
 
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT && req.user?.uniqueId !== patient.uniqueID) {
+    return next(new ErrorHandler("You are not authorized to access this patient.", 403));
+  }
+
   res.status(200).json({
     success: true,
     patient,
@@ -58,6 +79,11 @@ export const getPatientById = catchAsyncError(async (req, res, next) => {
 
 /* ================= UPDATE PATIENT ================= */
 export const updatePatient = catchAsyncError(async (req, res, next) => {
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT) {
+    return next(new ErrorHandler("Patients are not allowed to update this resource.", 403));
+  }
+
   const patient = await Patient.findByIdAndUpdate(
     req.params.id,
     req.body,
@@ -80,6 +106,11 @@ export const updatePatient = catchAsyncError(async (req, res, next) => {
 
 /* ================= DELETE PATIENT ================= */
 export const deletePatient = catchAsyncError(async (req, res, next) => {
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT) {
+    return next(new ErrorHandler("Patients are not allowed to delete this resource.", 403));
+  }
+
   const patient = await Patient.findByIdAndDelete(req.params.id);
 
   if (!patient) {
@@ -99,6 +130,11 @@ export const deleteMedicine = catchAsyncError(async (req, res, next) => {
   const patient = await Patient.findById(patientId);
   if (!patient) {
     return next(new ErrorHandler("Patient not found", 404));
+  }
+
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT && req.user?.uniqueId !== patient.uniqueID) {
+    return next(new ErrorHandler("You are not authorized to modify this patient.", 403));
   }
 
   const prescription = patient.prescriptions.id(prescriptionId);
@@ -127,6 +163,11 @@ export const deleteMedicine = catchAsyncError(async (req, res, next) => {
 
 // In your patientController.js
 export const getPatientByUniqueId = catchAsyncError(async (req, res, next) => {
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT && req.user?.uniqueId !== req.params.uniqueID) {
+    return next(new ErrorHandler("You are not authorized to access this patient.", 403));
+  }
+
   const patient = await Patient.findOne({ uniqueID: req.params.uniqueID });
   if (!patient) {
     return next(new ErrorHandler("Patient not found", 404));

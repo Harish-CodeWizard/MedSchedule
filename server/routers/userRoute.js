@@ -1,13 +1,18 @@
 import { registerUser,verifyEmail,login, getUserProfile, logout, forgotPassword, verifyForgot, newPassword, updateUserProfile, getAllUsers, getUserById } from "../controllers/userController.js";
 import express from "express";
-import { authenticateUser } from "../middleware/auth.js";
+import { authenticateUser, authorizeRoles, ROLE_GROUPS } from "../middleware/auth.js";
 const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/verifyEmail", verifyEmail);
 router.post("/login", login);
 router.get("/me",authenticateUser, getUserProfile);
-router.get("/getAllUsers",authenticateUser, getAllUsers);
+router.get(
+	"/getAllUsers",
+	authenticateUser,
+	authorizeRoles(ROLE_GROUPS.ADMIN_RECEPTION),
+	getAllUsers
+);
 router.get("/logout",authenticateUser, logout);
 router.post("/forgot", forgotPassword);
 router.post("/verifyForgot", verifyForgot);

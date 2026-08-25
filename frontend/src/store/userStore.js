@@ -31,8 +31,7 @@ getAllUsers:async ()=>{
     const res = await axiosInstance.get("/user/getAllUsers")
     set({allUsers:res.data.users})
 } catch (error) {
-    console.log("Error in checkAuth:",error)
-        set({user:null})
+    console.log("Error in getAllUsers:",error)
     }finally{
         set({isCheckingAuth:false})
     }
