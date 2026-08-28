@@ -61,7 +61,8 @@ router.put(
   authorizeRoles(
     ROLE_GROUPS.ADMIN_RECEPTION,
     ROLE_GROUPS.DOCTOR,
-    ROLE_GROUPS.PHARMACIST
+    ROLE_GROUPS.PHARMACIST,
+    ROLE_GROUPS.PATIENT
   ),
   updatePatient
 );

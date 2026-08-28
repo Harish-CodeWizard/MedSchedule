@@ -79,12 +79,36 @@ export const getPatientById = catchAsyncError(async (req, res, next) => {
 
 /* ================= UPDATE PATIENT ================= */
 export const updatePatient = catchAsyncError(async (req, res, next) => {
-  const normalizedRole = normalizeRole(req.user?.role);
-  if (normalizedRole === ROLE_GROUPS.PATIENT) {
-    return next(new ErrorHandler("Patients are not allowed to update this resource.", 403));
+  const patient = await Patient.findById(req.params.id);
+
+  if (!patient) {
+    return next(new ErrorHandler("Patient not found", 404));
   }
 
-  const patient = await Patient.findByIdAndUpdate(
+  const normalizedRole = normalizeRole(req.user?.role);
+  if (normalizedRole === ROLE_GROUPS.PATIENT) {
+    if (req.user?.uniqueId !== patient.uniqueID) {
+      return next(new ErrorHandler("You are not authorized to update this patient.", 403));
+    }
+
+    // Only allow updating safe fields
+    const allowedUpdates = ['name', 'age', 'weight', 'gender', 'phone', 'address', 'bloodGroup', 'allergies', 'emergencyContact'];
+    Object.keys(req.body).forEach(key => {
+      if (allowedUpdates.includes(key)) {
+        patient[key] = req.body[key];
+      }
+    });
+
+    await patient.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Patient updated successfully",
+      patient,
+    });
+  }
+
+  const updatedPatient = await Patient.findByIdAndUpdate(
     req.params.id,
     req.body,
     {
@@ -93,14 +117,10 @@ export const updatePatient = catchAsyncError(async (req, res, next) => {
     }
   );
 
-  if (!patient) {
-    return next(new ErrorHandler("Patient not found", 404));
-  }
-
   res.status(200).json({
     success: true,
     message: "Patient updated successfully",
-    patient,
+    patient: updatedPatient,
   });
 });
 

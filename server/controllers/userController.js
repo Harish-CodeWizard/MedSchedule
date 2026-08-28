@@ -251,10 +251,18 @@ export const login = catchAsyncError(async (req, res, next) => {
 
 
 export const getUserProfile = catchAsyncError(async (req, res, next) => {
-    const user = req.user;
+    let userObj = req.user.toObject();
+    if (req.user.role === 'Patient') {
+        const patient = await Patient.findOne({ uniqueID: req.user.uniqueId });
+        if (patient) {
+            userObj.age = patient.age;
+            userObj.weight = patient.weight;
+            userObj.gender = patient.gender;
+        }
+    }
     res.status(200).json({
         success: true,
-        user,
+        user: userObj,
     });
 });
 
@@ -457,10 +465,35 @@ export const updateUserProfile = catchAsyncError(async (req, res, next) => {
 
   await user.save();
 
+  // If Patient, update corresponding Patient document
+  if (user.role === 'Patient') {
+    const patient = await Patient.findOne({ uniqueID: user.uniqueId });
+    if (patient) {
+      if (name) patient.name = name;
+      if (phone) patient.phone = phone;
+      if (address) patient.address = address;
+      if (bloodGroup) patient.bloodGroup = bloodGroup;
+      if (req.body.age !== undefined) patient.age = Number(req.body.age);
+      if (req.body.weight !== undefined) patient.weight = Number(req.body.weight);
+      if (req.body.gender) patient.gender = req.body.gender;
+      await patient.save();
+    }
+  }
+
+  let userObj = user.toObject();
+  if (user.role === 'Patient') {
+    const patient = await Patient.findOne({ uniqueID: user.uniqueId });
+    if (patient) {
+      userObj.age = patient.age;
+      userObj.weight = patient.weight;
+      userObj.gender = patient.gender;
+    }
+  }
+
   res.status(200).json({
     success: true,
     message: "Profile updated successfully",
-    user,
+    user: userObj,
   });
 });
 
@@ -495,8 +528,18 @@ export const getUserById = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("User not found", 404));
   }
 
+  let userObj = user.toObject();
+  if (user.role === 'Patient') {
+    const patient = await Patient.findOne({ uniqueID: user.uniqueId });
+    if (patient) {
+      userObj.age = patient.age;
+      userObj.weight = patient.weight;
+      userObj.gender = patient.gender;
+    }
+  }
+
   res.status(200).json({
     success: true,
-    user,
+    user: userObj,
   });
 });
