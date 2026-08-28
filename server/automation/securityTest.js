@@ -234,6 +234,33 @@ async function runTests() {
   assert(expiredRequest.status === 400, `Expired token should return 400 Bad Request (status ${expiredRequest.status}, expected 400)`);
   assert(expiredRequest.data.message === 'Json Web Token is expired, Try again.', 'Expired token message should verify expiration');
 
+  // Test Case 6: Patient Cross-Resource Unauthorized Access
+  console.log('\n--- 6. Testing Patient Cross-Resource Unauthorized Access (Cross-Patient Block) ---');
+
+  // 1. Create Patient B record
+  const patientB = new Patient({
+    name: 'SecTest Patient B',
+    uniqueID: 'sectest-patient-b-uuid',
+    age: 25,
+    gender: 'Female'
+  });
+  await patientB.save();
+
+  // Try to access Patient B details with Patient A (role: Patient) token
+  const patientAccessOther = await makeRequest(`/api/patient/${patientB._id}`, 'GET', tokens['Patient']);
+  assert(patientAccessOther.status === 403, `Patient A should be blocked from GET Patient B details (status ${patientAccessOther.status}, expected 403)`);
+
+  const patientUpdateOther = await makeRequest(`/api/patient/${patientB._id}`, 'PUT', tokens['Patient'], {
+    'Content-Type': 'application/json'
+  });
+  assert(patientUpdateOther.status === 403, `Patient A should be blocked from PUT Patient B details (status ${patientUpdateOther.status}, expected 403)`);
+
+  const patientGetUniqueOther = await makeRequest(`/api/patient/unique/sectest-patient-b-uuid`, 'GET', tokens['Patient']);
+  assert(patientGetUniqueOther.status === 403, `Patient A should be blocked from GET Patient B by unique ID (status ${patientGetUniqueOther.status}, expected 403)`);
+
+  // Clean up Patient B
+  await Patient.deleteOne({ _id: patientB._id });
+
   console.log(`\n=== Tests Complete ===`);
   console.log(`Passed assertions: ${passed}`);
   console.log(`Failed assertions: ${failed}`);
