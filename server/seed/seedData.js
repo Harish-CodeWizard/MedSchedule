@@ -80,6 +80,29 @@ async function seed() {
       }],
     });
 
+    const additionalPatients = await Promise.all([
+      Patient.create({
+        name: 'Maya Johnson', uniqueID: 'patient-demo-002', address: '18 River Street', age: 29, weight: 64, gender: 'Female', phone: '+1 555 010 2041', bloodGroup: 'A+',
+        doctorAppointment: { doctorId: doctor._id, doctorName: doctor.name, appointmentDate: new Date(Date.now() + 172800000).toISOString(), status: 'Pending', charges: 80 },
+        prescriptions: [{ doctorId: doctor._id, doctorName: doctor.name, status: 'Pending', medicines: [{ medicineName: 'Paracetamol', quantity: 10, dosage: '500mg', frequency: 'As needed', duration: '5 days' }] }],
+      }),
+      Patient.create({
+        name: 'Noah Williams', uniqueID: 'patient-demo-003', address: '7 Oak Avenue', age: 52, weight: 81, gender: 'Male', phone: '+1 555 010 2042', bloodGroup: 'B+',
+        doctorAppointment: { doctorId: doctor._id, doctorName: doctor.name, appointmentDate: new Date(Date.now() - 86400000).toISOString(), status: 'Completed', charges: 80 },
+        prescriptions: [{ doctorId: doctor._id, doctorName: doctor.name, status: 'Completed', medicines: [{ medicineName: 'Lisinopril', quantity: 30, dosage: '10mg', frequency: 'Once daily', duration: '30 days' }] }],
+      }),
+      Patient.create({
+        name: 'Sofia Martinez', uniqueID: 'patient-demo-004', address: '91 Pine Road', age: 41, weight: 68, gender: 'Female', phone: '+1 555 010 2043', bloodGroup: 'AB+',
+        doctorAppointment: { doctorId: doctor._id, doctorName: doctor.name, appointmentDate: new Date(Date.now() + 259200000).toISOString(), status: 'Pending', charges: 80 },
+      }),
+      Patient.create({
+        name: 'Liam Brown', uniqueID: 'patient-demo-005', address: '3 Market Lane', age: 67, weight: 88, gender: 'Male', phone: '+1 555 010 2044', bloodGroup: 'O-',
+        doctorAppointment: { doctorId: doctor._id, doctorName: doctor.name, appointmentDate: new Date(Date.now() - 259200000).toISOString(), status: 'Completed', charges: 80 },
+        prescriptions: [{ doctorId: doctor._id, doctorName: doctor.name, status: 'Completed', medicines: [{ medicineName: 'Metformin', quantity: 60, dosage: '500mg', frequency: 'Twice daily', duration: '30 days' }] }],
+      }),
+    ]);
+    const demoPatients = [patient, ...additionalPatients];
+
     await LabRecord.create({
       patientId: patient._id,
       patientName: patient.name,
@@ -98,6 +121,24 @@ async function seed() {
       priority: 'Routine',
     });
 
+    await Promise.all(additionalPatients.slice(0, 3).map((demoPatient, index) => LabRecord.create({
+      patientId: demoPatient._id,
+      patientName: demoPatient.name,
+      patientUniqueId: demoPatient.uniqueID,
+      age: demoPatient.age,
+      gender: demoPatient.gender,
+      doctorId: doctor._id,
+      doctorName: doctor.name,
+      testName: ['Lipid Profile', 'Blood Glucose', 'Liver Function Test'][index],
+      category: 'Pathology',
+      diagnosis: index === 1 ? 'Diabetes screening' : 'Routine screening',
+      parameters: [{ parameter: index === 1 ? 'Glucose' : 'Result', value: index === 1 ? '102' : 'Normal', unit: index === 1 ? 'mg/dL' : '', normalRange: index === 1 ? '70-110' : 'Expected range' }],
+      result: index === 1 ? 'Within expected range' : 'Completed for review',
+      performedBy: 'Demo Lab Technician',
+      status: index === 2 ? 'Pending' : 'Completed',
+      priority: index === 0 ? 'Urgent' : 'Routine',
+    })));
+
     await XrayRecord.create({
       patientId: patient._id,
       patientName: patient.name,
@@ -115,6 +156,24 @@ async function seed() {
       status: 'Completed',
       priority: 'Routine',
     });
+
+    await Promise.all(demoPatients.slice(1).map((demoPatient, index) => XrayRecord.create({
+      patientId: demoPatient._id,
+      patientName: demoPatient.name,
+      patientUniqueId: demoPatient.uniqueID,
+      age: demoPatient.age,
+      gender: demoPatient.gender,
+      doctorId: doctor._id,
+      doctorName: doctor.name,
+      testName: ['Knee X-Ray', 'Chest X-Ray', 'Hand X-Ray', 'Spine X-Ray'][index],
+      category: 'Radiology',
+      diagnosis: 'Demonstration imaging record',
+      overallNotes: 'Open-license sample image for demonstration only.',
+      records: [{ image: openSourceXrayImages[index % openSourceXrayImages.length], cloudinary_id: `demo-xray-${index + 3}`, note: 'Demo image', filename: `demo-xray-${index + 3}.jpg` }],
+      performedBy: 'Demo X-Ray Technician',
+      status: index === 2 ? 'Pending' : 'Completed',
+      priority: index === 0 ? 'Urgent' : 'Routine',
+    })));
 
     await WalkInXray.create({
       patientName: 'Walk-in Demo Patient',
@@ -137,6 +196,14 @@ async function seed() {
       patientPhone: patient.phone,
       medicines: [{ medicineName: 'Amoxicillin', quantity: 14, dosage: '500mg', frequency: 'Twice daily', duration: '7 days', notes: 'Take after meals' }],
     });
+
+    await Promise.all([
+      { patient: additionalPatients[0], medicineName: 'Paracetamol', quantity: 10, charges: 12.5 },
+      { patient: additionalPatients[1], medicineName: 'Lisinopril', quantity: 30, charges: 38.75 },
+    ].map(({ patient: demoPatient, medicineName, quantity, charges }) => Medicine.create({
+      PharmacyPerson: 'Demo Pharmacist', charges, patientName: demoPatient.name, patientPhone: demoPatient.phone,
+      medicines: [{ medicineName, quantity, dosage: 'As prescribed', frequency: 'Daily', duration: '30 days' }],
+    })));
 
     console.log('\nSample login credentials:');
     sampleUsers.forEach(u => console.log(`  ${u.role}: ${u.email} / ${u.password}`));
