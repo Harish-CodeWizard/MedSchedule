@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import userStore from "./store/userStore";
@@ -33,6 +33,7 @@ import XrayTest from "./pages/supportivePages/XrayTest";
 import PatientDetailsByDoctor from "./pages/supportivePages/PatientDetailsByDoctor";
 import XrayPatientRegistration from "./pages/supportivePages/XrayPatientRegistration";
 import WalkInXrayRecords from "./pages/supportivePages/XrayWalkInRecord";
+import AppShell, { dashboardPathForRole } from "./components/AppShell";
 
 const normalizeRole = (role) => {
   const map = {
@@ -53,8 +54,32 @@ const ProtectedRoute = ({ isAuth, userRole, allowedRoles, children }) => {
   const normalizedRole = normalizeRole(userRole);
   if (!isAuth) return <Navigate to="/" />;
   if (!allowedRoles.includes(normalizedRole)) return <Navigate to="/" />;
-  return children;
+  return <AppShell>{children}</AppShell>;
 };
+
+function ActionProgress() {
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    const handleClick = (event) => {
+      const button = event.target.closest?.('button, [role="button"]');
+      if (!button || button.disabled || button.dataset.noProgress === 'true') return;
+      setActive(true);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setActive(false), 700);
+    };
+
+    document.addEventListener('click', handleClick, true);
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+      window.clearTimeout(timer);
+    };
+  }, []);
+
+  if (!active) return null;
+  return <div className="fixed inset-x-0 top-0 z-[100] h-1 overflow-hidden bg-blue-100"><div className="action-progress-bar h-full bg-blue-600" /></div>;
+}
 
 function App() {
   const { isAuth, checkAuth, isCheckingAuth, user } = userStore();
@@ -72,9 +97,10 @@ function App() {
 
   return (
     <div data-theme="retro">
+      <ActionProgress />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={!isAuth ? <PersonaSelect /> : <HomePage />} />
+        <Route path="/" element={!isAuth ? <PersonaSelect /> : <Navigate to={dashboardPathForRole(user?.role)} replace />} />
         <Route path="/signup" element={!isAuth ? <SignUpPage /> : <Navigate to="/" />} />
         <Route path="/login" element={!isAuth ? <LoginPage /> : <Navigate to="/" />} />
         <Route path="/verify-email" element={!isAuth ? <VerifyEmailPage /> : <Navigate to="/" />} />
