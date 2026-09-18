@@ -1,21 +1,19 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { checkDatabase, initializeDatabase } from './postgres.js';
 
 dotenv.config();
 
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI;
-
-    if (!mongoUri) {
-      throw new Error('MONGO_URI is not defined in environment variables.');
+    if (!process.env.DATABASE_URL && !process.env.PGHOST && !process.env.PGDATABASE) {
+      throw new Error('DATABASE_URL or PostgreSQL connection variables are not defined.');
     }
 
-    const conn = await mongoose.connect(mongoUri);
-    console.log(`MongoDB connected successfully: ${conn.connection.host}`);
-    return conn;
+    await initializeDatabase();
+    await checkDatabase();
+    console.log('PostgreSQL connected successfully');
   } catch (error) {
-    console.error('MongoDB connection failed:', error.message);
+    console.error('PostgreSQL connection failed:', error.message);
     throw error;
   }
 };

@@ -115,8 +115,9 @@ if (existingUser && !existingUser.verified) {
 }
 
 // Otherwise, create new user
-const newUser = new User({ name, email, password, role: selectedRole, uniqueId});
+const newUser = await User.create({ name, email, password, role: selectedRole, uniqueId});
 const verificationToken = newUser.generateCode();
+newUser.verificationToken = verificationToken;
 await newUser.save();
 await sendVerificationEmail(newUser.email, verificationToken);
 
@@ -229,9 +230,7 @@ export const login = catchAsyncError(async (req, res, next) => {
   }
 
   // Only login verified users
-  const user = await User.findOne({ email, verified: true }).select(
-    "+password"
-  );
+  const user = await User.findOne({ email, verified: true });
 
   if (!user) {
     return next(

@@ -124,8 +124,7 @@ export const getLabRecordsByPatient = catchAsyncError(async (req, res, next) => 
   const { patientId } = req.params;
   
   const records = await LabRecord.find({ patientId })
-    .sort({ performedDate: -1 })
-    .select('-__v');
+    .sort({ performedDate: -1 });
   
   res.status(200).json({
     success: true,

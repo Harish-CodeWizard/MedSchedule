@@ -1,7 +1,7 @@
 // server/seed/seedData.js
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../models/userModel.js'; // adjust path if different
+import connectDB from '../database/dbConnection.js';
 
 dotenv.config();
 
@@ -14,16 +14,15 @@ const sampleUsers = [
 
 async function seed() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('Connected to MongoDB for seeding');
+    await connectDB();
+    console.log('Connected to PostgreSQL for seeding');
 
     await User.deleteMany({});
     console.log('Cleared existing users');
 
     // Do NOT pre-hash here — the model's pre('save') hook hashes it automatically
     for (const u of sampleUsers) {
-      const user = new User(u);
-      await user.save();
+      await User.create(u);
     }
 
     console.log('\nSample login credentials:');

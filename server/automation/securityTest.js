@@ -1,5 +1,4 @@
 // server/automation/securityTest.js
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
@@ -57,7 +56,7 @@ async function setup() {
   console.log('Cleared old test records.');
 
   // 4. Create required Patient record for patient registration uniqueID check
-  const patient = new Patient({
+  const patient = await Patient.create({
     name: 'SecTest Patient Record',
     uniqueID: 'sectest-patient-uuid-123',
     age: 30,
@@ -238,7 +237,7 @@ async function runTests() {
   console.log('\n--- 6. Testing Patient Cross-Resource Unauthorized Access (Cross-Patient Block) ---');
 
   // 1. Create Patient B record
-  const patientB = new Patient({
+  const patientB = await Patient.create({
     name: 'SecTest Patient B',
     uniqueID: 'sectest-patient-b-uuid',
     age: 25,
@@ -286,10 +285,7 @@ async function cleanup() {
     console.log('Test server closed.');
   }
 
-  if (mongoose.connection.readyState !== 0) {
-    await mongoose.connection.close();
-    console.log('Mongoose connection closed.');
-  }
+  console.log('PostgreSQL connection remains managed by the test process.');
 }
 
 async function main() {

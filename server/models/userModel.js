@@ -1,50 +1,22 @@
-import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { PostgresModel } from '../database/postgres.js';
 
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
-    password: { type: String, required: true, select: false },
-    role: {
-      type: String,
-      required: true,
-      enum: ['Admin', 'Reception', 'Doctor', 'Lab', 'X-Ray', 'Pharmacy', 'Patient'],
-    },
-    uniqueId: { type: String, trim: true },
-    verified: { type: Boolean, default: false },
-    verificationToken: { type: String },
-    phone: { type: String },
-    address: { type: String },
-    emergencyContact: { type: String },
-    bloodGroup: { type: String },
-    allergies: { type: String },
-    SpecialistDoctor: { type: String },
-    ConsultationCharges: { type: Number, default: 0 },
-    ConsultationTime: { type: String },
-    ConsultationTimePerPatient: { type: String },
-    TotalAppointments: { type: Number, default: 0 },
-    AppointmentStart: { type: String },
-    AppointmentsToday: { type: Number, default: 0 },
-    licenseNumber: { type: String },
+const User = new PostgresModel({
+  collection: 'users',
+  defaults: { verified: false, ConsultationCharges: 0, TotalAppointments: 0, AppointmentsToday: 0 },
+  beforeSave: async function (user) {
+    if (user.password && !user.password.startsWith('$2')) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+    }
   },
-  { timestamps: true }
-);
-
-userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
-userSchema.methods.generateAuthToken = function () {
-  return jwt.sign(
+  methods: {
+    comparePassword(candidatePassword) {
+      return bcrypt.compare(candidatePassword, this.password);
+    },
+    generateAuthToken() {
+      return jwt.sign(
     {
       id: this._id,
       email: this.email,
@@ -54,13 +26,12 @@ userSchema.methods.generateAuthToken = function () {
     {
       expiresIn: process.env.JWT_EXPIRE || '7d',
     }
-  );
-};
-
-userSchema.methods.generateCode = function () {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
-const User = mongoose.models.User || mongoose.model('User', userSchema);
+      );
+    },
+    generateCode() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    },
+  },
+});
 
 export default User;
