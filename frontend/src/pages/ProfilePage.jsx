@@ -42,6 +42,10 @@ function ProfilePage() {
     ConsultationTimePerPatient: '',
     TotalAppointments: '',
     licenseNumber:'',
+    availabilityStatus: 'Available',
+    operationStatus: 'Available',
+    unavailableFrom: '',
+    unavailableUntil: '',
   });
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -62,6 +66,10 @@ function ProfilePage() {
     ConsultationTimePerPatient:user.ConsultationTimePerPatient || '',
     TotalAppointments:user.TotalAppointments || '',
     licenseNumber:user.licenseNumber || '',
+    availabilityStatus: user.availabilityStatus || 'Available',
+    operationStatus: user.operationStatus || 'Available',
+    unavailableFrom: user.unavailableFrom || '',
+    unavailableUntil: user.unavailableUntil || '',
       });
     }
   }, [user]);
@@ -122,7 +130,11 @@ function ProfilePage() {
     ConsultationTimePerPatient:user.ConsultationTimePerPatient || '',
     Appointments:user.Appointments || '',
     TotalAppointments:user.TotalAppointments || '',
-    licenseNumber:user.licenseNumber || ''
+    licenseNumber:user.licenseNumber || '',
+    availabilityStatus: user.availabilityStatus || 'Available',
+    operationStatus: user.operationStatus || 'Available',
+    unavailableFrom: user.unavailableFrom || '',
+    unavailableUntil: user.unavailableUntil || ''
     
     });
     setIsEditing(false);
@@ -547,6 +559,26 @@ const formatDate = (dateString) => {
       </p>
     </div>
   )}
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+  {isEditing ? (
+    <select name="availabilityStatus" value={formData.availabilityStatus} onChange={handleInputChange} className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+      <option value="Available">Available</option>
+      <option value="Unavailable">Unavailable</option>
+    </select>
+  ) : <div className="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900">{user.availabilityStatus || 'Available'}</div>}
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Operation status</label>
+  {isEditing ? (
+    <select name="operationStatus" value={formData.operationStatus} onChange={handleInputChange} className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+      <option value="Available">Available</option>
+      <option value="In Operation">In Operation</option>
+    </select>
+  ) : <div className="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900">{user.operationStatus || 'Available'}</div>}
 </div>
 
 

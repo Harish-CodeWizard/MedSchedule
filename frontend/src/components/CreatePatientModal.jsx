@@ -18,6 +18,7 @@ function CreatePatientModal({ onClose, onSuccess }) {
     doctorName: '',
     charges: 0 ,
     appointmentNumber:'',
+    appointmentDateTime: new Date(Date.now() + 30 * 60 * 1000).toISOString().slice(0, 16),
   });
   const [errors, setErrors] = useState({});
   const [doctors, setDoctors] = useState([]);
@@ -47,7 +48,7 @@ function CreatePatientModal({ onClose, onSuccess }) {
         });
 
         const totalAppointmentsLimit = doctor.TotalAppointments ? parseInt(doctor.TotalAppointments) : 0;
-        const isAvailable = totalAppointmentsLimit === 0 || todayAppointments.length < totalAppointmentsLimit;
+        const isAvailable = doctor.availabilityStatus !== 'Unavailable' && doctor.operationStatus !== 'In Operation' && (totalAppointmentsLimit === 0 || todayAppointments.length < totalAppointmentsLimit);
      
         return {
           ...doctor,
@@ -142,7 +143,8 @@ const handleSubmit = async (e) => {
       doctorName: formData.doctorName,
       charges: Number(formData.charges),
       appointmentNumber: formData.appointmentNumber, // Auto-calculated appointment number
-      appointmentDate: new Date(),
+      appointmentDate: new Date(formData.appointmentDateTime),
+      appointmentTime: new Date(formData.appointmentDateTime).toISOString(),
       status: "Pending",
       licenseNumber: formData.licenseNumber,
       
@@ -419,6 +421,18 @@ const handleSubmit = async (e) => {
                       }`}
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Appointment date and time</label>
+                  <input
+                    type="datetime-local"
+                    name="appointmentDateTime"
+                    value={formData.appointmentDateTime}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">The system checks this slot and reassigns it if the doctor becomes unavailable.</p>
                 </div>
               </div>
 

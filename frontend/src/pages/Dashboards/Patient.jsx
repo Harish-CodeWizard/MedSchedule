@@ -9,9 +9,10 @@ import {
   ChevronRight, Download, Printer,
   Clock, AlertCircle, CheckCircle,
   XCircle, Camera, Droplets, Thermometer,
-  Eye, FileCheck, FileX
+  Eye, FileCheck, FileX, CreditCard, Loader2
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { axiosInstance } from '../../lib/axios.js';
 
 function Patient() {
   const { user } = userStore();
@@ -25,6 +26,19 @@ function Patient() {
   const [xrayRecord, setXrayRecord] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedImage, setSelectedImage] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
+  const startPayment = async (type, targetId) => {
+    setPaymentLoading(true);
+    try {
+      const { data } = await axiosInstance.post('/payment/checkout', { type, targetId });
+      window.location.assign(data.checkoutUrl);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Online payments are not configured yet');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   const getData = async () => {
     setLoading(true);
@@ -44,6 +58,14 @@ function Patient() {
 
   useEffect(() => {
     getData();
+  }, []);
+
+  useEffect(() => {
+    const sessionId = new URLSearchParams(window.location.search).get('session_id');
+    if (!sessionId) return;
+    axiosInstance.get(`/payment/verify/${sessionId}`)
+      .then(() => toast.success('Payment confirmed'))
+      .catch(() => toast.error('Payment confirmation is still pending'));
   }, []);
 
   useEffect(() => {
@@ -550,9 +572,18 @@ function Patient() {
                             </div>
                           </div>
                           <div className="mt-2 md:mt-0">
-                            <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
-                              {prescription.medicines?.length || 0} Medicines
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                                {prescription.medicines?.length || 0} Medicines
+                              </span>
+                              {prescription.paymentStatus === 'paid' ? (
+                                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full">Paid</span>
+                              ) : Number(prescription.charges) > 0 && (
+                                <button type="button" onClick={() => startPayment('prescription', prescription._id)} disabled={paymentLoading} className="btn btn-sm btn-primary">
+                                  {paymentLoading ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />} Pay online
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                         
@@ -906,6 +937,7 @@ function Patient() {
                           <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
                             Charges: Rs {patient.doctorAppointment.charges}
                           </span>
+                          {patient.doctorAppointment.paymentStatus === 'paid' && <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full">Paid</span>}
                         </div>
                       </div>
                       <div className="mt-4 md:mt-0">
@@ -930,6 +962,13 @@ function Patient() {
                           {formatDateTime(patient.doctorAppointment.appointmentDate)}
                         </p>
                       </div>
+                      {patient.doctorAppointment.paymentStatus !== 'paid' && Number(patient.doctorAppointment.charges) > 0 && (
+                        <div className="md:col-span-2">
+                          <button type="button" onClick={() => startPayment('appointment')} disabled={paymentLoading} className="btn btn-primary">
+                            {paymentLoading ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />} Pay appointment online
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

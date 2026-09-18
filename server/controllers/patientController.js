@@ -3,6 +3,7 @@ import ErrorHandler from "../middleware/error.js";
 import { catchAsyncError } from "../middleware/catchAsyncError.js";
 import dotenv from "dotenv";
 import { normalizeRole, ROLE_GROUPS } from "../middleware/auth.js";
+import { prepareAppointment } from "../utils/appointmentScheduler.js";
 
 dotenv.config();
 
@@ -108,9 +109,13 @@ export const updatePatient = catchAsyncError(async (req, res, next) => {
     });
   }
 
+  const appointmentUpdate = req.body.doctorAppointment
+    ? { doctorAppointment: await prepareAppointment(patient, req.body.doctorAppointment) }
+    : req.body;
+
   const updatedPatient = await Patient.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    appointmentUpdate,
     {
       new: true,
       runValidators: true,

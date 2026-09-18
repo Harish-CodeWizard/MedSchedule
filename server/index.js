@@ -6,6 +6,7 @@ import patientRouter from './routers/patientRoute.js';
 import otherRoute from './routers/otherActiveRoute.js';
 import labRoute from './routers/labRoute.js';
 import xrayRoute from './routers/xrayRoute.js';
+import paymentRoute from './routers/paymentRoute.js';
 import { errorMiddleware } from './middleware/error.js';
 import { removeUnverifiedAccounts } from './automation/removeUnverifiedUsers.js';
 import path from 'path';
@@ -17,6 +18,7 @@ removeUnverifiedAccounts();
 // Allowed origins
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   "http://localhost:5000",
   "http://10.0.2.2:19000",
   "http://192.168.100.12:19000",
@@ -64,6 +66,7 @@ app.use('/api/patient', patientRouter);
 app.use('/api/otherActive', otherRoute);
 app.use('/api/lab', labRoute);
 app.use('/api/xray', xrayRoute);
+app.use('/api/payment', paymentRoute);
 
 // Error handler
 app.use(errorMiddleware);

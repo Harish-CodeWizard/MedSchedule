@@ -12,14 +12,17 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import userStore from "../../store/userStore";
 
 function PatientDetailsByDoctor() {
      const location = useLocation();
   const { uniqueId } = location.state || {};
   const  userID  = uniqueId;
+  const { user } = userStore();
   const { getAllLabRecord, labRecords } = labStore();
   const { getAllPatients, patients } = patientStore();
   const { getAllXrayRecord, xrayRecords } = xrayStore();
+  const selectedPatientId = userID || patients?.[0]?.uniqueID;
    
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
@@ -75,7 +78,7 @@ useEffect(() => {
   // Find patient - handle if patients is undefined
   if (patients && Array.isArray(patients)) {
     const foundPatient = patients.find(
-      item => item.uniqueID === userID
+      item => item.uniqueID === selectedPatientId
     );
     setPatient(foundPatient || null);
   }
@@ -88,12 +91,12 @@ useEffect(() => {
     if (Array.isArray(labRecords)) {
       // If labRecords is directly an array
       foundLabRecord = labRecords.find(
-        item => item.patientUniqueId === userID
+        item => item.patientUniqueId === selectedPatientId
       );
     } else if (labRecords.records && Array.isArray(labRecords.records)) {
       // If labRecords has a records property
       foundLabRecord = labRecords.records.find(
-        item => item.patientUniqueId === userID
+        item => item.patientUniqueId === selectedPatientId
       );
     } else if (labRecords.data && Array.isArray(labRecords.data)) {
       // If labRecords has a data property
@@ -108,7 +111,7 @@ useEffect(() => {
   // Find xray record - handle if xrayRecords is undefined
   if (xrayRecords && Array.isArray(xrayRecords)) {
     const foundXrayRecord = xrayRecords.find(
-      item => item.patientUniqueId === userID
+      item => item.patientUniqueId === selectedPatientId
     );
     setXrayRecord(foundXrayRecord || null);
   } else if (xrayRecords && xrayRecords.records && Array.isArray(xrayRecords.records)) {
@@ -118,7 +121,7 @@ useEffect(() => {
     );
     setXrayRecord(foundXrayRecord || null);
   }
-}, [userID, patients, labRecords, xrayRecords]);
+}, [selectedPatientId, patients, labRecords, xrayRecords]);
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {

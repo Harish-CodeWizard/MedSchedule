@@ -56,6 +56,7 @@ const matchesCondition = (actual, condition) => {
     if ('$gt' in condition && !(new Date(actual) > new Date(condition.$gt))) return false;
     if ('$lt' in condition && !(new Date(actual) < new Date(condition.$lt))) return false;
     if ('$in' in condition && !condition.$in.some((item) => valuesEqual(actual, item))) return false;
+    if ('$ne' in condition && valuesEqual(actual, condition.$ne)) return false;
     return true;
   }
 

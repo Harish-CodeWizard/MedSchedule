@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import userStore from '../store/userStore';
+import patientStore from '../store/patientStore';
 
 const roleNames = {
   Admin: 'Administrator',
@@ -76,6 +77,7 @@ export const dashboardPathForRole = (role) => ({
 
 function AppShell({ children }) {
   const { user, logoutUser } = userStore();
+  const { patients } = patientStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -140,6 +142,11 @@ function AppShell({ children }) {
               <NavLink
                 key={path}
                 to={path}
+                state={
+                  user?.role === 'Doctor' && ['/recommendTest', '/recommendXray', '/medicine'].includes(path)
+                    ? { patientID: patients?.[0]?._id, doctorID: user?._id }
+                    : undefined
+                }
                 className={({ isActive }) => `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'}`}
               >
                 <Icon className="size-4" />

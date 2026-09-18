@@ -4,7 +4,14 @@ import { PostgresModel } from '../database/postgres.js';
 
 const User = new PostgresModel({
   collection: 'users',
-  defaults: { verified: false, ConsultationCharges: 0, TotalAppointments: 0, AppointmentsToday: 0 },
+  defaults: {
+    verified: false,
+    ConsultationCharges: 0,
+    TotalAppointments: 0,
+    AppointmentsToday: 0,
+    availabilityStatus: 'Available',
+    operationStatus: 'Available',
+  },
   beforeSave: async function (user) {
     if (user.password && !user.password.startsWith('$2')) {
       const salt = await bcrypt.genSalt(10);

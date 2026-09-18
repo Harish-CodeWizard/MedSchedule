@@ -7,6 +7,7 @@ import nodemailer from "nodemailer";
 import { sendToken } from '../utils/sendToken.js';
 import Patient from '../models/PatientModel.js';
 import { normalizeRole, ROLE_GROUPS } from '../middleware/auth.js';
+import { reassignDoctorAppointments } from '../utils/appointmentScheduler.js';
 
 const normalizeIncomingRole = (role) => {
   const map = {
@@ -423,7 +424,11 @@ export const updateUserProfile = catchAsyncError(async (req, res, next) => {
     
     AppointmentStart,
     AppointmentsToday,
-    licenseNumber
+    licenseNumber,
+    availabilityStatus,
+    operationStatus,
+    unavailableFrom,
+    unavailableUntil
   } = req.body;
 
   // req.user comes from auth middleware
@@ -461,8 +466,17 @@ export const updateUserProfile = catchAsyncError(async (req, res, next) => {
   if (TotalAppointments) user.TotalAppointments = TotalAppointments;
   if (AppointmentsToday) user.AppointmentsToday = AppointmentsToday;
   if (licenseNumber) user.licenseNumber = licenseNumber;
+  if (availabilityStatus) user.availabilityStatus = availabilityStatus;
+  if (operationStatus) user.operationStatus = operationStatus;
+  if (unavailableFrom !== undefined) user.unavailableFrom = unavailableFrom || null;
+  if (unavailableUntil !== undefined) user.unavailableUntil = unavailableUntil || null;
 
   await user.save();
+
+  let reassignedAppointments = 0;
+  if (user.role === 'Doctor' && (availabilityStatus === 'Unavailable' || operationStatus === 'In Operation')) {
+    reassignedAppointments = await reassignDoctorAppointments(user._id);
+  }
 
   // If Patient, update corresponding Patient document
   if (user.role === 'Patient') {
@@ -493,6 +507,7 @@ export const updateUserProfile = catchAsyncError(async (req, res, next) => {
     success: true,
     message: "Profile updated successfully",
     user: userObj,
+    reassignedAppointments,
   });
 });
 
