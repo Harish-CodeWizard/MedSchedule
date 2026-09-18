@@ -107,7 +107,7 @@ class PostgresDocument {
   toObject() {
     const object = {};
     Object.entries(this).forEach(([key, value]) => {
-      if (key !== '__model') object[key] = clone(value);
+      if (key !== '__model' && typeof value !== 'function') object[key] = clone(value);
     });
     return object;
   }

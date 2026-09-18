@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useLocation,useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, ShieldCheck, Stethoscope, ClipboardList, FlaskConical, ScanLine, Pill, UserRound } from 'lucide-react';
 import AuthImagePattern from '../components/AuthImagePattern';
 import userStore from '../store/userStore';
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const location = useLocation();
-  const role = location.state?.role;
-
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,6 +16,22 @@ function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     loginUser(formData);
+  };
+
+  const demoAccounts = [
+    { role: 'Admin', email: 'admin@medschedule.demo', icon: ShieldCheck, tone: 'text-primary' },
+    { role: 'Reception', email: 'reception@medschedule.demo', icon: ClipboardList, tone: 'text-secondary' },
+    { role: 'Doctor', email: 'doctor@medschedule.demo', icon: Stethoscope, tone: 'text-accent' },
+    { role: 'Lab', email: 'lab@medschedule.demo', icon: FlaskConical, tone: 'text-info' },
+    { role: 'X-Ray', email: 'xray@medschedule.demo', icon: ScanLine, tone: 'text-warning' },
+    { role: 'Pharmacy', email: 'pharmacy@medschedule.demo', icon: Pill, tone: 'text-success' },
+    { role: 'Patient', email: 'patient@medschedule.demo', icon: UserRound, tone: 'text-error' },
+  ];
+
+  const useDemoAccount = (account) => {
+    const credentials = { email: account.email, password: 'Demo@12345' };
+    setFormData(credentials);
+    loginUser(credentials);
   };
 
   return (
@@ -114,6 +127,30 @@ function LoginPage() {
               )}
             </button>
           </form>
+
+          <div className="space-y-3">
+            <div className="divider text-xs uppercase tracking-[0.18em] opacity-60">Demo access</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {demoAccounts.map((account) => {
+                const Icon = account.icon;
+                return (
+                  <button
+                    key={account.role}
+                    type="button"
+                    onClick={() => useDemoAccount(account)}
+                    disabled={loading}
+                    className="btn btn-ghost justify-start border border-base-300 hover:border-primary/50 normal-case"
+                  >
+                    <Icon className={`size-4 ${account.tone}`} />
+                    <span className="flex flex-col items-start leading-tight">
+                      <span>{account.role}</span>
+                      <span className="text-[10px] opacity-50">Use demo account</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Footer */}
           {/* <div className="text-center">
