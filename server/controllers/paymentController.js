@@ -93,6 +93,7 @@ export const verifyCheckoutSession = catchAsyncError(async (req, res, next) => {
     if (patient && payment.type === 'appointment' && patient.doctorAppointment) {
       patient.doctorAppointment.paymentStatus = 'paid';
       patient.doctorAppointment.paymentId = payment._id;
+      patient.doctorAppointment.status = 'Confirmed';
       await patient.save();
     } else if (patient && payment.type === 'prescription') {
       const prescription = patient.prescriptions?.id(payment.targetId);

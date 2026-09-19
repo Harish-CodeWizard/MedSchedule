@@ -14,9 +14,9 @@ const DEMO_PASSWORD = 'Demo@12345';
 const sampleUsers = [
   { name: 'Demo Administrator', email: 'admin@medschedule.demo', password: DEMO_PASSWORD, role: 'Admin', uniqueId: 'admin-demo-id', verified: true },
   { name: 'Demo Receptionist', email: 'reception@medschedule.demo', password: DEMO_PASSWORD, role: 'Reception', uniqueId: 'reception-demo-id', verified: true },
-  { name: 'Dr. Maya Patel', email: 'doctor@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-id', verified: true, SpecialistDoctor: 'Cardiology', licenseNumber: 'MED-DEMO-001', ConsultationTimePerPatient: '30', AppointmentStart: '09:00' },
-  { name: 'Dr. Jordan Lee', email: 'doctor.jordan@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-002', verified: true, SpecialistDoctor: 'General Medicine', licenseNumber: 'MED-DEMO-002', ConsultationTimePerPatient: '30', AppointmentStart: '09:00' },
-  { name: 'Dr. Sara Khan', email: 'doctor.sara@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-003', verified: true, SpecialistDoctor: 'Radiology', licenseNumber: 'MED-DEMO-003', ConsultationTimePerPatient: '30', AppointmentStart: '10:00' },
+  { name: 'Dr. Maya Patel', email: 'doctor@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-id', verified: true, SpecialistDoctor: 'Cardiology', licenseNumber: 'MED-DEMO-001', ConsultationCharges: 80, ConsultationTimePerPatient: '30', AppointmentStart: '09:00' },
+  { name: 'Dr. Jordan Lee', email: 'doctor.jordan@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-002', verified: true, SpecialistDoctor: 'General Medicine', licenseNumber: 'MED-DEMO-002', ConsultationCharges: 80, ConsultationTimePerPatient: '30', AppointmentStart: '09:00' },
+  { name: 'Dr. Sara Khan', email: 'doctor.sara@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-003', verified: true, SpecialistDoctor: 'Radiology', licenseNumber: 'MED-DEMO-003', ConsultationCharges: 80, ConsultationTimePerPatient: '30', AppointmentStart: '10:00' },
   { name: 'Demo Lab Technician', email: 'lab@medschedule.demo', password: DEMO_PASSWORD, role: 'Lab', uniqueId: 'lab-demo-id', verified: true },
   { name: 'Demo X-Ray Technician', email: 'xray@medschedule.demo', password: DEMO_PASSWORD, role: 'X-Ray', uniqueId: 'xray-demo-id', verified: true },
   { name: 'Demo Pharmacist', email: 'pharmacy@medschedule.demo', password: DEMO_PASSWORD, role: 'Pharmacy', uniqueId: 'pharmacy-demo-id', verified: true },

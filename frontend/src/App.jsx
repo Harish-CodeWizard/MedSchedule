@@ -33,6 +33,7 @@ import XrayTest from "./pages/supportivePages/XrayTest";
 import PatientDetailsByDoctor from "./pages/supportivePages/PatientDetailsByDoctor";
 import XrayPatientRegistration from "./pages/supportivePages/XrayPatientRegistration";
 import WalkInXrayRecords from "./pages/supportivePages/XrayWalkInRecord";
+import BookAppointment from "./pages/BookAppointment";
 import AppShell, { dashboardPathForRole } from "./components/AppShell";
 
 const normalizeRole = (role) => {
@@ -305,6 +306,15 @@ function App() {
           element={
             <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['PATIENT']}>
               <Patient />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/book-appointment"
+          element={
+            <ProtectedRoute isAuth={isAuth} userRole={user?.role} allowedRoles={['PATIENT']}>
+              <BookAppointment />
             </ProtectedRoute>
           }
         />

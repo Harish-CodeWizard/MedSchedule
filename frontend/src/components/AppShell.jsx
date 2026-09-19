@@ -15,6 +15,7 @@ import {
   UserRound,
   Users,
   X,
+  CalendarPlus,
 } from 'lucide-react';
 import userStore from '../store/userStore';
 import patientStore from '../store/patientStore';
@@ -62,6 +63,7 @@ const navigationByRole = {
   ],
   Patient: [
     { label: 'My dashboard', path: '/patient-dashboard', icon: LayoutDashboard },
+    { label: 'Book appointment', path: '/book-appointment', icon: CalendarPlus },
   ],
 };
 

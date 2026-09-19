@@ -557,3 +557,8 @@ export const getUserById = catchAsyncError(async (req, res, next) => {
     user: userObj,
   });
 });
+
+export const getAvailableDoctors = catchAsyncError(async (req, res) => {
+  const doctors = await User.find({ role: 'Doctor', verified: true });
+  res.status(200).json({ success: true, doctors });
+});
