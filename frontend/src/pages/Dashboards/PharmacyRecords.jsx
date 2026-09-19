@@ -88,6 +88,9 @@ console.log(filteredData)
         charges,
         completedDate,
         PharmacyPerson: pres.PharmacyPerson || 'Unknown',
+        fulfillmentMethod: pres.fulfillmentMethod || 'takeaway',
+        fulfillmentStatus: pres.fulfillmentStatus || 'awaiting_payment',
+        deliveryAddress: pres.deliveryAddress || '',
 
         medicines: pres.medicines || [],
         status: pres.status || 'Completed'
@@ -1003,6 +1006,9 @@ const handleExportData = () => {
                         <td className="px-6 py-4">
                           <div className="text-lg font-bold text-emerald-700">
                             PKR {prescription.charges.toLocaleString()}
+                          </div>
+                          <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            {prescription.fulfillmentMethod}
                           </div>
                         </td>
                         

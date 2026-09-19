@@ -21,6 +21,7 @@ function LabTest() {
   const [filteredData, setFilteredData] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRecordForDetails, setSelectedRecordForDetails] = useState(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -200,45 +201,7 @@ function LabTest() {
 
   /* ================= VIEW DETAILS ================= */
   const handleViewDetails = (record) => {
-    const parametersList = record.parameters && record.parameters.length > 0 ? 
-      record.parameters.map((param, index) => `
-      Parameter ${index + 1}: ${param.parameter}
-      Value: ${param.value} ${param.unit}
-      Normal Range: ${param.normalRange}
-      Flag: ${param.flag}
-      Notes: ${param.notes || 'None'}
-    `).join('\n') : 'No parameters available';
-
-    alert(`🔬 Lab Test Record\n
-📋 Record Information:
-Patient ID: ${record.patientUniqueId}
-Status: ${record.status}
-
-👤 Patient Information:
-Name: ${record.patientName}
-Age: ${record.patientAge}
-Gender: ${record.patientGender}
-
-🩺 Medical Information:
-Doctor: ${record.doctorName}
-Diagnosis: ${record.diagnosis || 'N/A'}
-Charges Details: ${record.overallNotes || 'None'}
-
-🧪 Test Details:
-Test: ${record.testName}
-Category: ${record.testCategory}
-Priority: ${record.priority}
-Instructions: ${record.instructions || 'None'}
-
-📊 Test Parameters:
-${parametersList}
-
-📅 Timeline:
-Performed Date: ${record.performedDate ? new Date(record.performedDate).toLocaleDateString() : 'N/A'}
-Completed: ${record.completedDate ? new Date(record.completedDate).toLocaleDateString() : 'Pending'}
-
-🧑‍🔬 Lab Information:
-Technician: ${record.performedBy || 'N/A'}`);
+    setSelectedRecordForDetails(record);
   };
 
 
@@ -508,6 +471,61 @@ const handleDeleteRecord = async (recordId) => {
   /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-gray-50 text-black p-4 md:p-6">
+      
+      {/* View Details Modal */}
+      <dialog className={`modal ${selectedRecordForDetails ? 'modal-open' : ''}`} open={!!selectedRecordForDetails}>
+        <div className="modal-box w-11/12 max-w-3xl">
+          <h3 className="font-bold text-lg text-blue-700 border-b pb-2 mb-4">🔬 Lab Test Record Details</h3>
+          {selectedRecordForDetails && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-gray-50 border rounded-lg">
+                  <h4 className="font-semibold text-gray-800 border-b pb-1 mb-2">📋 Record & Patient</h4>
+                  <p className="text-sm"><strong>Patient ID:</strong> {selectedRecordForDetails.patientUniqueId}</p>
+                  <p className="text-sm"><strong>Status:</strong> {selectedRecordForDetails.status}</p>
+                  <p className="text-sm"><strong>Name:</strong> {selectedRecordForDetails.patientName}</p>
+                  <p className="text-sm"><strong>Age | Gender:</strong> {selectedRecordForDetails.patientAge} | {selectedRecordForDetails.patientGender}</p>
+                </div>
+                <div className="p-4 bg-gray-50 border rounded-lg">
+                  <h4 className="font-semibold text-gray-800 border-b pb-1 mb-2">🩺 Medical & Test</h4>
+                  <p className="text-sm"><strong>Doctor:</strong> {selectedRecordForDetails.doctorName}</p>
+                  <p className="text-sm"><strong>Diagnosis:</strong> {selectedRecordForDetails.diagnosis || 'N/A'}</p>
+                  <p className="text-sm"><strong>Test:</strong> {selectedRecordForDetails.testName} ({selectedRecordForDetails.testCategory})</p>
+                  <p className="text-sm text-red-600 font-bold"><strong>Priority:</strong> {selectedRecordForDetails.priority}</p>
+                </div>
+              </div>
+              <div className="p-4 bg-gray-50 border rounded-lg">
+                <h4 className="font-semibold text-gray-800 border-b pb-1 mb-2">📊 Test Parameters</h4>
+                <div className="space-y-2 text-sm">
+                  {selectedRecordForDetails.parameters?.length > 0 ? (
+                    selectedRecordForDetails.parameters.map((param, index) => (
+                      <div key={index} className="grid grid-cols-4 gap-2 border-b border-gray-200 pb-1">
+                        <span className="font-medium">{param.parameter}</span>
+                        <span>{param.value} {param.unit}</span>
+                        <span className="text-gray-500 text-xs">Range: {param.normalRange}</span>
+                        <span className={`font-bold ${param.flag === 'High' || param.flag === 'Critical' ? 'text-red-500' : 'text-blue-500'}`}>{param.flag}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 italic">No parameters available</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-between items-center bg-gray-100 p-2 rounded-lg text-xs text-gray-600">
+                <span><strong>Technician:</strong> {selectedRecordForDetails.performedBy || 'N/A'}</span>
+                <span><strong>Performed:</strong> {selectedRecordForDetails.performedDate ? new Date(selectedRecordForDetails.performedDate).toLocaleDateString() : 'N/A'}</span>
+              </div>
+            </div>
+          )}
+          <div className="modal-action">
+            <button className="btn btn-primary" onClick={() => setSelectedRecordForDetails(null)}>Close</button>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop" onClick={() => setSelectedRecordForDetails(null)}>
+          <button>close</button>
+        </form>
+      </dialog>
+
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}

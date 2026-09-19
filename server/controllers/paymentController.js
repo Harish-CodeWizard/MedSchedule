@@ -37,7 +37,7 @@ export const createCheckoutSession = catchAsyncError(async (req, res, next) => {
   const stripe = getStripe();
   if (!stripe) return next(new ErrorHandler('Online payments are not configured. Add STRIPE_SECRET_KEY to server/.env.', 503));
 
-  const { type, targetId, patientId } = req.body;
+  const { type, targetId, patientId, fulfillmentMethod, deliveryAddress } = req.body;
   const patient = await getPatientForRequest(req, patientId);
   const target = getPaymentTarget(patient, type, targetId);
   if (!target || target.amount <= 0) return next(new ErrorHandler('A payable charge could not be found for this item.', 400));
@@ -53,6 +53,8 @@ export const createCheckoutSession = catchAsyncError(async (req, res, next) => {
     amount: target.amount,
     currency: 'usd',
     status: 'pending',
+    fulfillmentMethod: type === 'prescription' ? fulfillmentMethod || 'takeaway' : null,
+    deliveryAddress: type === 'prescription' && fulfillmentMethod === 'delivery' ? deliveryAddress || '' : null,
   });
 
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
@@ -100,6 +102,9 @@ export const verifyCheckoutSession = catchAsyncError(async (req, res, next) => {
       if (prescription) {
         prescription.paymentStatus = 'paid';
         prescription.paymentId = payment._id;
+        prescription.fulfillmentMethod = payment.fulfillmentMethod;
+        prescription.fulfillmentStatus = payment.fulfillmentMethod === 'delivery' ? 'preparing_delivery' : 'ready_for_takeaway';
+        prescription.deliveryAddress = payment.deliveryAddress || null;
         await patient.save();
       }
     }

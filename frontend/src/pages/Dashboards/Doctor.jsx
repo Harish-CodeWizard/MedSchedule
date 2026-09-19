@@ -189,13 +189,16 @@ function Doctor() {
       return appointmentDate.toDateString() === today.toDateString();
     });
 
-    // Sort by appointmentNumber in ascending order (1, 2, 3...)
+    // Sort by Priority first, then appointmentNumber
     return todayPatients.sort((a, b) => {
-      // Get appointment numbers, default to a large number if not found
+      const priorityWeights = { 'High': 3, 'Medium': 2, 'Low': 1 };
+      const weightA = priorityWeights[a.doctorAppointment?.priority] || 1;
+      const weightB = priorityWeights[b.doctorAppointment?.priority] || 1;
+      if (weightA !== weightB) {
+        return weightB - weightA;
+      }
       const numA = a.doctorAppointment?.appointmentNumber || 999999;
       const numB = b.doctorAppointment?.appointmentNumber || 999999;
-      
-      // Convert to numbers for proper numeric sorting
       return Number(numA) - Number(numB);
     });
   };
@@ -748,6 +751,13 @@ const exportPatientData = (patient) => {
                     </div>
                     
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <span className={`px-2 py-1 text-xs font-bold rounded-lg text-white ${
+                        patient.doctorAppointment?.priority === 'High' ? 'bg-red-600' : 
+                        patient.doctorAppointment?.priority === 'Medium' ? 'bg-orange-500' : 
+                        'bg-emerald-500'
+                      }`}>
+                        {patient.doctorAppointment?.priority || 'Low'} Priority
+                      </span>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(patient.doctorAppointment?.status)}`}>
                         {getStatusIcon(patient.doctorAppointment?.status)}
                         {patient.doctorAppointment?.status || 'Pending'}

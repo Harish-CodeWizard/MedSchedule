@@ -5,7 +5,6 @@ import { Toaster } from "react-hot-toast";
 import userStore from "./store/userStore";
 
 // Pages
-import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";

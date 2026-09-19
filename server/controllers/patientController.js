@@ -109,9 +109,21 @@ export const updatePatient = catchAsyncError(async (req, res, next) => {
     });
   }
 
-  const appointmentUpdate = req.body.doctorAppointment
-    ? { doctorAppointment: await prepareAppointment(patient, req.body.doctorAppointment) }
-    : req.body;
+  let appointmentUpdate = req.body;
+  if (req.body.doctorAppointment) {
+    const apt = req.body.doctorAppointment;
+    let priorityLevel = 'Low';
+    const pain = parseInt(apt.painLevel || 1, 10);
+    const textLower = (apt.appointmentReason || '').toLowerCase();
+    
+    if (pain >= 8 || textLower.includes('emergency') || textLower.includes('chest pain') || textLower.includes('heart') || textLower.includes('bleeding')) {
+      priorityLevel = 'High';
+    } else if (pain >= 5 || textLower.includes('urgent') || textLower.includes('severe')) {
+      priorityLevel = 'Medium';
+    }
+    apt.priority = priorityLevel;
+    appointmentUpdate = { doctorAppointment: await prepareAppointment(patient, apt) };
+  }
 
   const updatedPatient = await Patient.findByIdAndUpdate(
     req.params.id,

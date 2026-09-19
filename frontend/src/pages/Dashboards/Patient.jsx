@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { axiosInstance } from '../../lib/axios.js';
+import FulfillmentOptions from '../../components/FulfillmentOptions.jsx';
 
 function Patient() {
   const { user } = userStore();
@@ -27,11 +28,17 @@ function Patient() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedImage, setSelectedImage] = useState(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [medicineCheckout, setMedicineCheckout] = useState({ prescriptionId: null, method: 'takeaway', address: '' });
 
-  const startPayment = async (type, targetId) => {
+  const startPayment = async (type, targetId, fulfillment = {}) => {
     setPaymentLoading(true);
     try {
-      const { data } = await axiosInstance.post('/payment/checkout', { type, targetId });
+      const { data } = await axiosInstance.post('/payment/checkout', {
+        type,
+        targetId,
+        fulfillmentMethod: fulfillment.method,
+        deliveryAddress: fulfillment.address,
+      });
       window.location.assign(data.checkoutUrl);
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Online payments are not configured yet');
@@ -555,6 +562,7 @@ function Patient() {
                 ) : (
                   <div className="space-y-6">
                     {patient.prescriptions.map((prescription, index) => (
+                      <>
                       <div key={index} className="border border-gray-200 rounded-lg p-6">
                         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                           <div>
@@ -579,7 +587,7 @@ function Patient() {
                               {prescription.paymentStatus === 'paid' ? (
                                 <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full">Paid</span>
                               ) : Number(prescription.charges) > 0 && (
-                                <button type="button" onClick={() => startPayment('prescription', prescription._id)} disabled={paymentLoading} className="btn btn-sm btn-primary">
+                                <button type="button" onClick={() => setMedicineCheckout({ prescriptionId: prescription._id, method: 'takeaway', address: '' })} disabled={paymentLoading} className="btn btn-sm btn-primary">
                                   {paymentLoading ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />} Pay online
                                 </button>
                               )}
@@ -647,6 +655,24 @@ function Patient() {
                           </div>
                         )}
                       </div>
+
+                      {medicineCheckout.prescriptionId === prescription._id && prescription.paymentStatus !== 'paid' && (
+                        <div className="mt-5 space-y-3">
+                          <FulfillmentOptions
+                            value={medicineCheckout.method}
+                            onChange={(method) => setMedicineCheckout((current) => ({ ...current, method }))}
+                            address={medicineCheckout.address}
+                            onAddressChange={(address) => setMedicineCheckout((current) => ({ ...current, address }))}
+                          />
+                          <div className="flex flex-wrap gap-2">
+                            <button type="button" onClick={() => setMedicineCheckout({ prescriptionId: null, method: 'takeaway', address: '' })} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700">Cancel</button>
+                            <button type="button" disabled={paymentLoading || (medicineCheckout.method === 'delivery' && !medicineCheckout.address.trim())} onClick={() => startPayment('prescription', prescription._id, medicineCheckout)} className="btn btn-primary btn-sm">
+                              {paymentLoading ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />} Continue to payment
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      </>
                     ))}
                   </div>
                 )}

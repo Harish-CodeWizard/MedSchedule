@@ -21,6 +21,7 @@ function XrayTest() {
   const [filteredData, setFilteredData] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRecordForDetails, setSelectedRecordForDetails] = useState(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -219,41 +220,7 @@ function XrayTest() {
 
   /* ================= VIEW X-RAY DETAILS ================= */
   const handleViewDetails = (record) => {
-    setViewingRecord(record);
-    
-    const imagesList = record.records && record.records.length > 0 ? 
-      record.records.map((img, index) => `
-      Image ${index + 1}: 
-      Note: ${img.note || 'No note'}
-      ${img.image.startsWith('data:image') ? 'Base64 Image' : `File: ${img.image}`}
-    `).join('\n') : 'No images available';
-
-    alert(`📷 X-ray Record\n
-📋 Record Information:
-Patient ID: ${record.patientUniqueId}
-Status: ${record.status}
-
-👤 Patient Information:
-Name: ${record.patientName}
-Age: ${record.patientAge}
-Gender: ${record.patientGender}
-
-🩺 Medical Information:
-Doctor: ${record.doctorName}
-Diagnosis: ${record.diagnosis || 'N/A'}
-Charges Details: ${record.overallNotes || 'None'}
-
-📸 X-ray Images:
-${record.records ? `${record.records.length} image(s)` : '0 images'}
-
-${imagesList}
-
-📅 Timeline:
-Performed Date: ${record.performedDate ? new Date(record.performedDate).toLocaleDateString() : 'N/A'}
-Completed: ${record.completedDate ? new Date(record.completedDate).toLocaleDateString() : 'Pending'}
-
-🧑‍🔬 X-ray Technician:
-${record.performedBy || 'N/A'}`);
+    setSelectedRecordForDetails(record);
   };
 
   /* ================= VIEW X-RAY IMAGES ================= */
@@ -539,6 +506,60 @@ ${record.performedBy || 'N/A'}`);
   /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-gray-50 text-black p-4 md:p-6">
+      
+      {/* View Details Modal */}
+      <dialog className={`modal ${selectedRecordForDetails ? 'modal-open' : ''}`} open={!!selectedRecordForDetails}>
+        <div className="modal-box w-11/12 max-w-3xl">
+          <h3 className="font-bold text-lg text-blue-700 border-b pb-2 mb-4 flex items-center gap-2">
+            <Camera className="w-5 h-5" /> X-ray Record Details
+          </h3>
+          {selectedRecordForDetails && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-gray-50 border rounded-lg">
+                  <h4 className="font-semibold text-gray-800 border-b pb-1 mb-2">📋 Record & Patient</h4>
+                  <p className="text-sm"><strong>Patient ID:</strong> {selectedRecordForDetails.patientUniqueId}</p>
+                  <p className="text-sm"><strong>Status:</strong> {selectedRecordForDetails.status}</p>
+                  <p className="text-sm"><strong>Name:</strong> {selectedRecordForDetails.patientName}</p>
+                  <p className="text-sm"><strong>Age | Gender:</strong> {selectedRecordForDetails.patientAge} | {selectedRecordForDetails.patientGender}</p>
+                </div>
+                <div className="p-4 bg-gray-50 border rounded-lg">
+                  <h4 className="font-semibold text-gray-800 border-b pb-1 mb-2">🩺 Medical Information</h4>
+                  <p className="text-sm"><strong>Doctor:</strong> {selectedRecordForDetails.doctorName}</p>
+                  <p className="text-sm"><strong>Diagnosis:</strong> {selectedRecordForDetails.diagnosis || 'N/A'}</p>
+                  <p className="text-sm"><strong>Test:</strong> {selectedRecordForDetails.testName} ({selectedRecordForDetails.testCategory})</p>
+                  <p className="text-sm text-red-600 font-bold"><strong>Priority:</strong> {selectedRecordForDetails.priority}</p>
+                </div>
+              </div>
+              <div className="p-4 bg-gray-50 border rounded-lg">
+                <h4 className="font-semibold text-gray-800 border-b pb-1 mb-2">📸 X-ray Images ({selectedRecordForDetails.records?.length || 0})</h4>
+                <div className="space-y-2 text-sm max-h-40 overflow-y-auto">
+                  {selectedRecordForDetails.records?.length > 0 ? (
+                    selectedRecordForDetails.records.map((img, index) => (
+                      <div key={index} className="border-b border-gray-200 pb-1">
+                        <span className="font-medium">Image {index + 1}:</span> {img.note || 'No note'}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 italic">No images available</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-between items-center bg-gray-100 p-2 rounded-lg text-xs text-gray-600">
+                <span><strong>Technician:</strong> {selectedRecordForDetails.performedBy || 'N/A'}</span>
+                <span><strong>Performed:</strong> {selectedRecordForDetails.performedDate ? new Date(selectedRecordForDetails.performedDate).toLocaleDateString() : 'N/A'}</span>
+              </div>
+            </div>
+          )}
+          <div className="modal-action">
+            <button className="btn btn-primary" onClick={() => setSelectedRecordForDetails(null)}>Close</button>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop" onClick={() => setSelectedRecordForDetails(null)}>
+          <button>close</button>
+        </form>
+      </dialog>
+
       {/* Image Preview Modal */}
       {previewImage && viewingRecord && (
         <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
