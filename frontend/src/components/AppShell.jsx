@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import userStore from '../store/userStore';
 import patientStore from '../store/patientStore';
+import { dashboardPathForRole } from '../utils/navigation';
 
 const roleNames = {
   Admin: 'Administrator',
@@ -66,16 +67,6 @@ const navigationByRole = {
     { label: 'Book appointment', path: '/book-appointment', icon: CalendarPlus },
   ],
 };
-
-export const dashboardPathForRole = (role) => ({
-  Admin: '/admin-dashboard',
-  Reception: '/reception-dashboard',
-  Doctor: '/doctor-dashboard',
-  Lab: '/lab-dashboard',
-  'X-Ray': '/xray-dashboard',
-  Pharmacy: '/pharmacy-dashboard',
-  Patient: '/patient-dashboard',
-}[role] || '/');
 
 function AppShell({ children }) {
   const { user, logoutUser } = userStore();

@@ -27,7 +27,7 @@ function LabTest() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const recordsPerPage = 10;
   const [paginationInfo, setPaginationInfo] = useState({
     totalPages: 1,
     currentPage: 1,

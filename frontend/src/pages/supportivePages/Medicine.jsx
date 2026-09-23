@@ -257,7 +257,7 @@ const handleSavePrescription = async () => {
     };
 
     // Remove temporary id and calculatedQuantity from medicines
-    const cleanedMedicines = prescriptionData.medicines.map(({ id, calculatedQuantity, ...rest }) => rest);
+    const cleanedMedicines = prescriptionData.medicines.map(({ id: _id, calculatedQuantity: _calcQty, ...rest }) => rest);
     prescriptionData.medicines = cleanedMedicines;
 
     // Get the latest patient data

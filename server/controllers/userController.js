@@ -30,7 +30,7 @@ const selectedRole = normalizeIncomingRole(role);
 if (!name || !email || !password || !selectedRole || !uniqueId) {
   return next(new ErrorHandler("All fields required", 400));
 }
-console.log(name, email, password, selectedRole, uniqueId)
+
 const emailRegex = /^\S+@\S+\.\S+$/;
 if (!emailRegex.test(email)) {
   return next(new ErrorHandler("Invalid email format", 400));

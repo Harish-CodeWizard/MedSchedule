@@ -19,15 +19,18 @@ export const sendToken = (user, statusCode, message, res) => {
   const cookieExpireDays = Number(process.env.COOKIE_EXPIRE || 7);
   const safeCookieExpireDays = Number.isFinite(cookieExpireDays) && cookieExpireDays > 0 ? cookieExpireDays : 7;
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  const sameSiteSetting = process.env.COOKIE_SAME_SITE || (isProduction ? 'None' : 'Lax');
+
   res
     .status(statusCode)
     .cookie('token', token, {
       expires: new Date(
         Date.now() + safeCookieExpireDays * 24 * 60 * 60 * 1000
       ),
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction || sameSiteSetting.toLowerCase() === 'none',
       httpOnly: true,
-      sameSite: 'Lax',
+      sameSite: sameSiteSetting,
     })
     .json({
       success: true,

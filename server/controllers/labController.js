@@ -28,8 +28,6 @@ export const createLabRecord = catchAsyncError(async (req, res, next) => {
       xRay
     } = req.body;
     
-    console.log('Incoming data:', req.body);
-    
     // Validate required fields
     if (!patientId || !patientName || !testName || !category || !parameters || parameters.length === 0) {
       return next(new ErrorHandler('Please fill all required fields including test parameters', 400));

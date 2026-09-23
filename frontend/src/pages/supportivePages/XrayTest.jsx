@@ -26,14 +26,7 @@ function XrayTest() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
-  const [paginationInfo, setPaginationInfo] = useState({
-    totalPages: 1,
-    currentPage: 1,
-    totalRecords: 0,
-    limit: 20
-  });
 
   const [stats, setStats] = useState({
     totalToday: 0,
@@ -87,10 +80,8 @@ function XrayTest() {
     // If xrayRecords has records and pagination structure
     if (xrayRecords.records && xrayRecords.pagination) {
       processXrayRecords(xrayRecords.records);
-      setPaginationInfo(xrayRecords.pagination);
       setCurrentPage(xrayRecords.pagination.currentPage);
       setTotalPages(xrayRecords.pagination.totalPages);
-      setTotalRecords(xrayRecords.pagination.totalRecords);
     }
 
   }, [xrayRecords]);

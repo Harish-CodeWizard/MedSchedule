@@ -879,8 +879,6 @@ function Lab() {
       // Use the store function to get patient
       const patientData = await getPatientByUniqueId(searchId);
       
-      console.log('Patient data from store:', patientData);
-      
       // Check if patient was found
       if (!patientData || !patientData._id) {
         alert('Patient not found with this ID');
@@ -891,8 +889,6 @@ function Lab() {
       
       // Process the patient data from store
       const patient = patientStore.getState().singlePatient;
-      
-      console.log('Patient from store state:', patient);
       
       if (!patient) {
         alert('Patient data not loaded properly');
@@ -938,8 +934,6 @@ function Lab() {
           flag: 'Normal',
           notes: ''
         }]);
-      } else {
-        console.log('No pending tests found for patient');
       }
       
     } catch (error) {
@@ -948,13 +942,6 @@ function Lab() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Debug function to check current state
-  const debugState = () => {
-    console.log('Current store state:', patientStore.getState());
-    console.log('Patient found:', patientFound);
-    console.log('Single patient:', singlePatient);
   };
 
   const handleAddParameter = () => {
@@ -1056,8 +1043,6 @@ function Lab() {
         diagnosis: selectedTest.diagnosis || ''
       };
 
-      console.log('Sending lab record data:', labRecordData);
-      
       const result = await createLabRecord(labRecordData);
       
       if (result && result.success) {
@@ -1142,15 +1127,6 @@ function Lab() {
               >
                 <FileText className="w-4 h-4" />
                 All Lab Records
-              </button>
-              
-              {/* Debug button (remove in production) */}
-              <button 
-                onClick={debugState}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Debug State
               </button>
             </div>
           </div>

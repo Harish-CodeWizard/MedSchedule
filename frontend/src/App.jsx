@@ -33,7 +33,8 @@ import PatientDetailsByDoctor from "./pages/supportivePages/PatientDetailsByDoct
 import XrayPatientRegistration from "./pages/supportivePages/XrayPatientRegistration";
 import WalkInXrayRecords from "./pages/supportivePages/XrayWalkInRecord";
 import BookAppointment from "./pages/BookAppointment";
-import AppShell, { dashboardPathForRole } from "./components/AppShell";
+import AppShell from "./components/AppShell";
+import { dashboardPathForRole } from "./utils/navigation";
 
 const normalizeRole = (role) => {
   const map = {

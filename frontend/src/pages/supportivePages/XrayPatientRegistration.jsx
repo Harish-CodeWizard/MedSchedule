@@ -170,7 +170,7 @@ function XrayPatientRegistration() {
       formDataToSend.append('walkIn', 'true');
       
       // Add all images
-      xrayImages.forEach((image, index) => {
+      xrayImages.forEach((image) => {
         if (image.file) {
           formDataToSend.append('images', image.file);
         }

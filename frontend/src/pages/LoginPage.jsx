@@ -28,7 +28,7 @@ function LoginPage() {
     { role: 'Patient', email: 'patient@medschedule.demo', icon: UserRound, tone: 'text-error' },
   ];
 
-  const useDemoAccount = (account) => {
+  const handleDemoLogin = (account) => {
     const credentials = { email: account.email, password: 'Demo@12345' };
     setFormData(credentials);
     loginUser(credentials);
@@ -137,7 +137,7 @@ function LoginPage() {
                   <button
                     key={account.role}
                     type="button"
-                    onClick={() => useDemoAccount(account)}
+                    onClick={() => handleDemoLogin(account)}
                     disabled={loading}
                     className="btn btn-ghost justify-start border border-base-300 hover:border-primary/50 normal-case"
                   >

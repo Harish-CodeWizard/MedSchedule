@@ -5,6 +5,7 @@ import {
   Eye, RefreshCw, BarChart3, DollarSign,
   User, CheckCircle, Search, Package
 } from 'lucide-react';
+import PharmacyDetailsModal from '../../components/PharmacyDetailsModal';
 
 function WalkInPharmacyRecords() {
   const {
@@ -19,7 +20,6 @@ function WalkInPharmacyRecords() {
   const [selectedDate, setSelectedDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecordForDetails, setSelectedRecordForDetails] = useState(null);
-console.log(allRecords)
   const [stats, setStats] = useState({
     totalToday: 0,
     totalAllTime: 0,
@@ -714,7 +714,7 @@ const handleExportData = () => {
               </tr>
             </thead>
             <tbody>
-              ${allRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((record, index) => {
+              ${allRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((record) => {
                 const date = record.createdAt ? new Date(record.createdAt) : new Date();
                 const formattedDate = date.toLocaleDateString('en-GB');
                 const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -853,54 +853,13 @@ const handleExportData = () => {
     <div className="min-h-screen bg-gray-50 text-black p-4 md:p-6">
       
       {/* View Details Modal */}
-      <dialog className={`modal ${selectedRecordForDetails ? 'modal-open' : ''}`} open={!!selectedRecordForDetails}>
-        <div className="modal-box max-w-2xl">
-          <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-            <Package className="w-5 h-5 text-blue-600" />
-            Walk-in Pharmacy Record Details
-          </h3>
-          {selectedRecordForDetails && (
-            <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-blue-900 mb-2">Record Information</h4>
-                <p className="text-sm"><span className="font-medium">Record ID:</span> {selectedRecordForDetails.recordId}</p>
-                <p className="text-sm"><span className="font-medium">Date:</span> {new Date(selectedRecordForDetails.createdAt).toLocaleString()}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border border-gray-200 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-900 mb-2">Customer Information</h4>
-                  <p className="text-sm"><span className="font-medium">Name:</span> {selectedRecordForDetails.patientName}</p>
-                  <p className="text-sm"><span className="font-medium">Phone:</span> {selectedRecordForDetails.patientPhone}</p>
-                </div>
-                <div className="border border-gray-200 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-900 mb-2">Pharmacy Information</h4>
-                  <p className="text-sm"><span className="font-medium">Handled By:</span> {selectedRecordForDetails.PharmacyPerson}</p>
-                  <p className="text-sm"><span className="font-medium text-blue-600">Total Charges: PKR {selectedRecordForDetails.charges.toLocaleString()}</span></p>
-                </div>
-              </div>
-              <div className="border border-gray-200 p-4 rounded-lg max-h-60 overflow-y-auto">
-                <h4 className="font-semibold text-gray-900 mb-2">Medicines Dispensed ({selectedRecordForDetails.totalMedicines})</h4>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  {selectedRecordForDetails.medicines?.map((med, idx) => (
-                    <li key={idx}>
-                      {med.medicineName} - Qty: {med.quantity} - PKR {med.pharmacyCharges || 0}
-                    </li>
-                  ))}
-                </ul>
-                {(!selectedRecordForDetails.medicines || selectedRecordForDetails.medicines.length === 0) && (
-                  <p className="text-gray-500 italic text-sm">No medicines listed</p>
-                )}
-              </div>
-            </div>
-          )}
-          <div className="modal-action">
-            <button className="btn btn-primary" onClick={() => setSelectedRecordForDetails(null)}>Close</button>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop" onClick={() => setSelectedRecordForDetails(null)}>
-          <button>close</button>
-        </form>
-      </dialog>
+      <PharmacyDetailsModal
+        isOpen={!!selectedRecordForDetails}
+        record={selectedRecordForDetails}
+        onClose={() => setSelectedRecordForDetails(null)}
+        onPrint={handlePrintReceipt}
+        type="walkin"
+      />
 
       <div className="max-w-7xl mx-auto">
         

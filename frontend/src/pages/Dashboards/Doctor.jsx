@@ -42,19 +42,12 @@ function Doctor() {
   const [dateFilter, setDateFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
   const [currentDoctor, setCurrentDoctor] = useState(null);
   
   const patientsPerPage = 10;
 
   // Fetch data and set current doctor
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
     // Fetch patients and users
     getAllPatients();
     getAllUsers();
@@ -63,8 +56,6 @@ function Doctor() {
     if (user && user.role === 'Doctor') {
       setCurrentDoctor(user);
     }
-    
-    return () => window.removeEventListener('resize', checkScreenSize);
   }, [user]);
 
   // Filter patients for current doctor

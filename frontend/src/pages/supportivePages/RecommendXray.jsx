@@ -280,7 +280,7 @@ const handleSaveRecommendation = async () => {
     };
 
     // Remove temporary id from tests
-    const cleanedTests = recommendationData.tests.map(({ id, ...rest }) => rest);
+    const cleanedTests = recommendationData.tests.map(({ id: _id, ...rest }) => rest);
     recommendationData.tests = cleanedTests;
 
     // ===== DUPLICATE CHECK FOR NEW RECOMMENDATIONS =====

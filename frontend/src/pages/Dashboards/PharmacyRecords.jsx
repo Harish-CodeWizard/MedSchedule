@@ -5,6 +5,7 @@ import {
   Eye, RefreshCw, BarChart3, DollarSign,
   User, CheckCircle, Search
 } from 'lucide-react';
+import PharmacyDetailsModal from '../../components/PharmacyDetailsModal';
 
 function PharmacyRecords() {
   const {
@@ -17,7 +18,7 @@ function PharmacyRecords() {
   const [filteredData, setFilteredData] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-console.log(filteredData)
+  const [selectedRecordForDetails, setSelectedRecordForDetails] = useState(null);
   const [stats, setStats] = useState({
     totalToday: 0,
     totalAllTime: 0,
@@ -134,20 +135,7 @@ console.log(filteredData)
 
 
   const handleViewDetails = (prescription) => {
-
-    alert(`💊 Walk-in Pharmacy Record\n
-📋 Record Information:
-Record ID: ${prescription?.patientUniqueId}
-
-👤 Customer Information:
-Name: ${prescription.patientName}
-Doctor: ${prescription.doctorName}
-Diagnosis: ${prescription.diagnosis}
-
-💰 Financial Information:
-Charges: PKR ${prescription.charges}
-
-💊 Medicines: ${prescription.medicines.length} items`);
+    setSelectedRecordForDetails(prescription);
   };
 
 
@@ -624,7 +612,7 @@ const handleExportData = () => {
             </tr>
           </thead>
           <tbody>
-            ${filteredData.map((record, index) => {
+            ${filteredData.map((record) => {
               const date = record.completedDate ? new Date(record.completedDate) : new Date();
               const formattedDate = date.toLocaleDateString('en-GB');
               const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -798,6 +786,15 @@ const handleExportData = () => {
   /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-gray-50 text-black p-4 md:p-6">
+      {/* View Prescription Details Modal */}
+      <PharmacyDetailsModal
+        isOpen={!!selectedRecordForDetails}
+        record={selectedRecordForDetails}
+        onClose={() => setSelectedRecordForDetails(null)}
+        onPrint={handlePrintReceipt}
+        type="prescription"
+      />
+
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}

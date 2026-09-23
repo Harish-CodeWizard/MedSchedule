@@ -52,7 +52,7 @@ function SignUpPage() {
     e.preventDefault();
 
     if (!validateForm()) return;
-console.log(formData)
+
     const result = await registerUser(formData);
     if (result) navigate("/verify-email");
   };

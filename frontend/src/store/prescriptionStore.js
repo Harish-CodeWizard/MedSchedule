@@ -8,13 +8,10 @@ const prescriptionStore = create((set) => ({
 
   /* ================= CREATE Pharmacy Record ================= */
   addPresception: async (prescriptionData) => {
-    console.log("Sending to backend:", prescriptionData);
     try {
       set({ loading: true });
 
       const res = await axiosInstance.post("/otherActive", prescriptionData);
-
-      console.log("Backend response:", res.data);
       
       if (res.data.success) {
         // Update local state with new record

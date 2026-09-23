@@ -30,7 +30,7 @@ function Reception() {
   const { patients, loading, getAllPatients, updatePatient, deletePatient } = patientStore();
   const {getAllUsers,allUsers} = userStore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const statusFilter = 'all';
   const [currentPage, setCurrentPage] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -38,7 +38,6 @@ function Reception() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
   
   // Appointment Edit Modal State
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
@@ -70,15 +69,7 @@ function Reception() {
 
   useEffect(() => {
     fetchDoctors();
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
     getAllPatients();
-    
-    return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
   // Filter patients
@@ -724,7 +715,8 @@ const handlePrintDetails = () => {
               className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center transition-all hover:shadow-lg"
             >
               <UserPlus className="w-5 h-5 mr-2" />
-              {isMobile ? 'New Patient' : 'Register New Patient'}
+              <span className="sm:hidden">New Patient</span>
+              <span className="hidden sm:inline">Register New Patient</span>
             </button>
           </div>
         </div>

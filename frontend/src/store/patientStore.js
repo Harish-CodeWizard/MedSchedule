@@ -62,7 +62,6 @@ const patientStore = create((set) => ({
 
   /* ================= UPDATE PATIENT ================= */
   updatePatient: async (id, updatedData) => {
-    console.log(updatedData)
     try {
       set({ loading: true });
 

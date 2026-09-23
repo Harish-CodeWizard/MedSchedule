@@ -14,7 +14,6 @@
     "axios": "^1.10.0",
     "daisyui": "^5.0.46",
     "lucide-react": "^0.525.0",
-    "new-folder": "file:..",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

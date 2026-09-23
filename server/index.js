@@ -16,12 +16,19 @@ export const app = express();
 removeUnverifiedAccounts();
 
 // Allowed origins
+const configuredOrigins = [
+  process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+  ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()) : []),
+].filter(Boolean);
+
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5000",
   "http://10.0.2.2:19000",
   "http://192.168.100.12:19000",
+  ...configuredOrigins,
 ];
 
 //  CORS
