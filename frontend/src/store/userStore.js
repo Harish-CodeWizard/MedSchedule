@@ -12,18 +12,17 @@ isCheckingAuth:true,
 
 
 
-checkAuth:async ()=>{
+  checkAuth: async () => {
     try {
-    const res = await axiosInstance.get("/user/me")
-    set({isAuth:true, user:res.data.user})
-    // console.log(res.data.user)
-} catch (error) {
-    console.log("Error in checkAuth:",error)
-        set({isAuth:false, user:null})
-    }finally{
-        set({isCheckingAuth:false})
+      const res = await axiosInstance.get("/user/me", { timeout: 8000 });
+      set({ isAuth: true, user: res.data.user });
+    } catch (error) {
+      console.log("Error in checkAuth:", error);
+      set({ isAuth: false, user: null });
+    } finally {
+      set({ isCheckingAuth: false });
     }
-},
+  },
 
 // getAllUsers
 getAllUsers:async ()=>{

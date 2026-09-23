@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+html, body {
+  background-color: #f8fafc;
+  color: #0f172a;
+  min-height: 100vh;
+}
+
 @keyframes action-progress {
 	0% { transform: translateX(-100%); }
 	100% { transform: translateX(400%); }

@@ -91,8 +91,9 @@ function App() {
 
   if (isCheckingAuth && !isAuth)
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
+      <div className="flex flex-col items-center justify-center h-screen bg-slate-50 text-slate-800">
+        <Loader className="size-10 animate-spin text-blue-600 mb-3" />
+        <p className="text-sm font-medium text-slate-500">Loading MedSchedule...</p>
       </div>
     );
 
