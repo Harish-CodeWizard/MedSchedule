@@ -35,10 +35,17 @@ const allowedOrigins = [
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+      return callback(null, true);
     }
+    try {
+      const hostname = new URL(origin).hostname;
+      if (hostname.endsWith(".vercel.app") || hostname === "localhost") {
+        return callback(null, true);
+      }
+    } catch {
+      // ignore URL parse errors
+    }
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

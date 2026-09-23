@@ -8,7 +8,15 @@ let pool;
 const getPool = () => {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
-    const ssl = process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined;
+    let ssl;
+    if (process.env.DATABASE_SSL === 'false') {
+      ssl = false;
+    } else if (
+      process.env.DATABASE_SSL === 'true' ||
+      (connectionString && (connectionString.includes('sslmode=require') || connectionString.includes('neon.tech') || connectionString.includes('aws.')))
+    ) {
+      ssl = { rejectUnauthorized: false };
+    }
 
     pool = new Pool({
       connectionString,
