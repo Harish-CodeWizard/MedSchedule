@@ -7,7 +7,7 @@ let pool;
 
 const getPool = () => {
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL;
+    let connectionString = process.env.DATABASE_URL;
     let ssl;
     if (process.env.DATABASE_SSL === 'false') {
       ssl = false;
@@ -18,6 +18,15 @@ const getPool = () => {
       ssl = { rejectUnauthorized: false };
     }
 
+    if (connectionString) {
+      // Strip channel_binding and sslmode query params so pg doesn't conflict or stall
+      connectionString = connectionString
+        .replace(/[?&]channel_binding=[^&]+/gi, '')
+        .replace(/[?&]sslmode=[^&]+/gi, '')
+        .replace(/\?$/, '')
+        .replace(/\?&/, '?');
+    }
+
     pool = new Pool({
       connectionString,
       host: connectionString ? undefined : process.env.PGHOST || 'localhost',
@@ -26,6 +35,8 @@ const getPool = () => {
       user: connectionString ? undefined : process.env.PGUSER || 'postgres',
       password: connectionString ? undefined : process.env.PGPASSWORD,
       ssl,
+      connectionTimeoutMillis: 15000,
+      idleTimeoutMillis: 30000,
     });
   }
 
