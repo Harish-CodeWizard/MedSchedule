@@ -24,7 +24,12 @@ import {
 } from 'lucide-react';
 import patientStore from '../../store/patientStore.js';
 import CreatePatientModal from '../../components/CreatePatientModal.jsx';
-import userStore from '../../store/userStore.js'
+import userStore from '../../store/userStore.js';
+import InfoRow from '../../components/common/InfoRow.jsx';
+import PatientDetailsModal from '../../components/reception/PatientDetailsModal.jsx';
+import AppointmentEditModal from '../../components/reception/AppointmentEditModal.jsx';
+import EditPatientModal from '../../components/reception/EditPatientModal.jsx';
+import DeleteConfirmModal from '../../components/reception/DeleteConfirmModal.jsx';
 
 function Reception() {
   const { patients, loading, getAllPatients, updatePatient, deletePatient } = patientStore();
@@ -1007,510 +1012,52 @@ const handlePrintDetails = () => {
       )}
 
       {/* Patient Details Modal */}
-      {showPatientDetails && selectedPatient && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Patient Details</h2>
-                  <p className="text-gray-600">Complete patient information</p>
-                </div>
-                <button
-                  onClick={() => setShowPatientDetails(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
+      <PatientDetailsModal
+        isOpen={showPatientDetails}
+        patient={selectedPatient}
+        onClose={() => setShowPatientDetails(false)}
+        onEdit={handleEditClick}
+        onEditAppointment={handleAppointmentEditClick}
+        onExportData={handlePrintDetails}
+        getDoctorName={getDoctorName}
+      />
 
-              <div className="space-y-6">
-                {/* Patient Header */}
-                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl">
-                  <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                    {selectedPatient.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{selectedPatient.name}</h3>
-                    <div className="flex items-center gap-3 mt-2">
-                      <span className="text-sm text-gray-600">
-                       <span className='text-black font-bold'> ID: </span>{selectedPatient.uniqueID || selectedPatient._id?.substring(0, 8)}
-                       <div><span  className='text-black font-bold'>AppointmentNumber: </span>{selectedPatient.doctorAppointment?.appointmentNumber || 'No Appointment'}</div>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Personal Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <User className="w-5 h-5 text-indigo-600" />
-                      Personal Information
-                    </h4>
-                    <InfoRow label="Full Name" value={selectedPatient.name} />
-                    <InfoRow label="Gender" value={selectedPatient.gender || 'Not specified'} />
-                    <InfoRow label="Age" value={selectedPatient.age || 'Not provided'} />
-                    <InfoRow label="Weight" value={selectedPatient.weight ? `${selectedPatient.weight} kg` : 'Not provided'} />
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <Phone className="w-5 h-5 text-indigo-600" />
-                      Contact Information
-                    </h4>
-                    <InfoRow label="Phone" value={selectedPatient.phone || 'Not provided'} />
-                    <InfoRow label="Address" value={selectedPatient.address || 'Not provided'} />
-                    <InfoRow label="Blood Group" value={selectedPatient.bloodGroup || 'Not tested'} />
-                  </div>
-                </div>
-
-                {/* Appointment Information */}
-                {selectedPatient.doctorAppointment && selectedPatient.doctorAppointment.doctorId ? (
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl">
-                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Stethoscope className="w-5 h-5 text-amber-600" />
-                      Appointment Information
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <InfoRow label="Doctor Name" value={selectedPatient.doctorAppointment.doctorName || getDoctorName(selectedPatient.doctorAppointment.doctorId)} />
-                      <InfoRow label="Charges" value={`PKR ${selectedPatient.doctorAppointment.charges || 0}`} />
-                      <InfoRow label="Appointment Date" value={new Date(selectedPatient.doctorAppointment.appointmentDate).toLocaleDateString()} />
-                      <InfoRow label="Status" value={selectedPatient.doctorAppointment.status || 'Pending'} />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-gray-50 p-4 rounded-xl">
-                    <p className="text-gray-600 text-center">
-                      No appointment assigned to this patient
-                    </p>
-                  </div>
-                )}
-
-                {/* System Information */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-gray-600" />
-                    System Information
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <InfoRow label="Registration Date" value={new Date(selectedPatient.createdAt).toLocaleDateString()} />
-                    <InfoRow label="Last Updated" value={new Date(selectedPatient.updatedAt || selectedPatient.createdAt).toLocaleDateString()} />
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
-                  <button
-                    onClick={() => handleEditClick(selectedPatient)}
-                    className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-medium py-3 rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                  >
-                    <Edit className="w-5 h-5" />
-                    Edit Patient
-                  </button>
-                  <button
-                    onClick={() => handleAppointmentEditClick(selectedPatient)}
-                    className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-medium py-3 rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                  >
-                    <Calendar className="w-5 h-5" />
-                    {selectedPatient.doctorAppointment ? 'Edit Appointment' : 'Add Appointment'}
-                  </button>
-                  <button className="flex-1 bg-white border border-gray-300 text-gray-700 font-medium py-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2" onClick={handlePrintDetails}>
-                    <Download className="w-5 h-5" />
-                    Export Data
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/*  APPOINTMENT EDIT MODAL*/}
-      {showAppointmentModal && selectedPatient && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    {selectedPatient.doctorAppointment ? 'Edit Appointment' : 'Add Appointment'}
-                  </h2>
-                  <p className="text-sm text-gray-600">Patient: {selectedPatient.name}</p>
-                </div>
-                <button
-                  onClick={() => setShowAppointmentModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-
-              <form onSubmit={handleAppointmentSubmit}>
-                <div className="space-y-4">
-                 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Select Doctor *
-  </label>
-  <select
-    name="doctorId"
-    value={appointmentForm.doctorId}
-    onChange={handleAppointmentInputChange}
-    className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-    required
-  >
-    <option value="">Select Doctor</option>
-    {getDoctors().map(doctor => (
-      <option 
-        key={doctor._id} 
-        value={doctor._id}
-        disabled={!doctor.isAvailable}
-        className={!doctor.isAvailable ? 'text-gray-400' : ''}
-      >
-        Dr. {doctor.name} - PKR {doctor.ConsultationCharges || 0}
-        {doctor.isAvailable 
-          ? doctor.TotalAppointments 
-            ? ` (Slots: ${doctor.remainingSlots}/${doctor.TotalAppointments})`
-            : ' (Available)'
-          : ' (FULL - No Slots Available)'}
-      </option>
-    ))}
-  </select>
-  <p className="text-xs text-gray-500 mt-1">
-    Doctors with no available slots are disabled
-  </p>
-</div>
-
-                  {/* Appointment Date */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Appointment Date *
-                    </label>
-                    <input
-                      type="date"
-                      name="appointmentDate"
-                      value={appointmentForm.appointmentDate}
-                      onChange={handleAppointmentInputChange}
-                      className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                      required
-                    />
-                  </div>
-
-                  
-{/* Charges */}
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Charges (PKR) *
-  </label>
-  <input
-    type="number"
-    name="charges"
-    value={appointmentForm.charges}
-    readOnly
-    className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
-    placeholder="Auto-filled from doctor's charges"
-  />
-  <p className="text-xs text-gray-500 mt-1">
-    Charges are automatically set from selected doctor's consultation fees
-  </p>
-</div>
-                  {/* Status */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Status *
-                    </label>
-                    <select
-                      name="status"
-                      value={appointmentForm.status}
-                      onChange={handleAppointmentInputChange}
-                      className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                      required
-                    >
-                      {appointmentStatuses.map(status => (
-                        <option key={status} value={status}>{status}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                 
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowAppointmentModal(false)}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    
-                    {selectedPatient.doctorAppointment && (
-                      <button
-                        type="button"
-                        onClick={handleRemoveAppointment}
-                        className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-medium py-3 rounded-lg transition-colors"
-                      >
-                        Remove
-                      </button>
-                    )}
-                    
-                    <button
-                      type="submit"
-                      className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-medium py-3 rounded-lg transition-all hover:shadow-lg"
-                    >
-                      {selectedPatient.doctorAppointment ? 'Update' : 'Add Appointment'}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* APPOINTMENT EDIT MODAL */}
+      <AppointmentEditModal
+        isOpen={showAppointmentModal}
+        patient={selectedPatient}
+        appointmentForm={appointmentForm}
+        onFormChange={handleAppointmentInputChange}
+        onSubmit={handleAppointmentSubmit}
+        onClose={() => setShowAppointmentModal(false)}
+        onRemove={handleRemoveAppointment}
+        doctors={getDoctors()}
+        appointmentStatuses={appointmentStatuses}
+      />
 
       {/* Edit Patient Modal */}
-      {showEditModal && selectedPatient && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Edit Patient</h2>
-                  <p className="text-gray-600">Update patient information</p>
-                </div>
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-
-              <form onSubmit={handleEditSubmit}>
-                <div className="space-y-6">
-                  {/* Personal Information */}
-                  <div className="bg-gradient-to-r  from-indigo-50 to-purple-50 p-4 rounded-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <User className="w-5 h-5 text-indigo-600" />
-                      Personal Information
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Name */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={editFormData.name}
-                          onChange={handleEditInputChange}
-                          className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                          required
-                        />
-                      </div>
-
-                      {/* Age */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Age (Years) *
-                        </label>
-                        <div className="relative">
-                          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <input
-                            type="text"
-                            name="age"
-                            value={editFormData.age}
-                            onChange={handleEditInputChange}
-                            className="w-full pl-10 pr-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      {/* Weight */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Weight (kg) *
-                        </label>
-                        <div className="relative">
-                          <Scale className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <input
-                            type="text"
-                            name="weight"
-                            value={editFormData.weight}
-                            onChange={handleEditInputChange}
-                            className="w-full pl-10 pr-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      {/* Gender */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Gender *
-                        </label>
-                        <select
-                          name="gender"
-                          value={editFormData.gender}
-                          onChange={handleEditInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                          required
-                        >
-                          <option value="">Select Gender</option>
-                          {genders.map(gender => (
-                            <option key={gender} value={gender}>{gender}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Address */}
-                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      Address Information *
-                    </h3>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Complete Address *
-                      </label>
-                      <textarea
-                        name="address"
-                        value={editFormData.address}
-                        onChange={handleEditInputChange}
-                        rows="3"
-                        className="w-full px-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Additional Information */}
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Droplets className="w-5 h-5 text-green-600" />
-                      Additional Information
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Phone */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number
-                        </label>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <input
-                            type="tel"
-                            name="phone"
-                            value={editFormData.phone}
-                            onChange={handleEditInputChange}
-                            className="w-full pl-10 pr-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Blood Group */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Blood Group
-                        </label>
-                        <div className="relative">
-                          <Droplets className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <select
-                            name="bloodGroup"
-                            value={editFormData.bloodGroup}
-                            onChange={handleEditInputChange}
-                            className="w-full pl-10 pr-4 py-2.5 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                          >
-                            <option value="">Select Blood Group</option>
-                            {bloodGroups.map(group => (
-                              <option key={group} value={group}>{group}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
-                    <button
-                      type="button"
-                      onClick={() => setShowEditModal(false)}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-lg transition-colors border border-gray-300"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-medium py-3 rounded-lg transition-all hover:shadow-lg flex items-center justify-center gap-2"
-                    >
-                      <Save className="w-5 h-5" />
-                      Update Patient
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditPatientModal
+        isOpen={showEditModal}
+        formData={editFormData}
+        onFormChange={handleEditInputChange}
+        onSubmit={handleEditSubmit}
+        onClose={() => setShowEditModal(false)}
+        genders={genders}
+        bloodGroups={bloodGroups}
+      />
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && patientToDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900">Delete Patient</h2>
-              </div>
-              
-              <p className="text-gray-600 mb-6">
-                Are you sure you want to delete <span className="font-semibold text-gray-900">{patientToDelete.name}</span>? 
-                This action cannot be undone.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => {
-                    setShowDeleteConfirm(false);
-                    setPatientToDelete(null);
-                  }}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-lg transition-colors border border-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all hover:shadow-lg"
-                >
-                  Delete Patient
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmModal
+        isOpen={showDeleteConfirm}
+        patient={patientToDelete}
+        onConfirm={confirmDelete}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setPatientToDelete(null);
+        }}
+      />
     </div>
   );
 }
-
-// Helper component for info rows
-const InfoRow = ({ label, value }) => (
-  <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-    <span className="text-sm text-gray-600">{label}:</span>
-    <span className="text-sm font-medium text-gray-900">{value}</span>
-  </div>
-);
 
 export default Reception;
