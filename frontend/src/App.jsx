@@ -51,8 +51,17 @@ const normalizeRole = (role) => {
 };
 
 // ProtectedRoute component (role + auth based)
-const ProtectedRoute = ({ isAuth, userRole, allowedRoles, children }) => {
-  const normalizedRole = normalizeRole(userRole);
+const ProtectedRoute = ({ allowedRoles, children }) => {
+  const { isAuth, isCheckingAuth, user } = userStore();
+  if (isCheckingAuth) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-slate-50 text-slate-800">
+        <Loader className="size-10 animate-spin text-blue-600 mb-3" />
+        <p className="text-sm font-medium text-slate-500">Authenticating MedSchedule session...</p>
+      </div>
+    );
+  }
+  const normalizedRole = normalizeRole(user?.role);
   if (!isAuth) return <Navigate to="/" />;
   if (!allowedRoles.includes(normalizedRole)) return <Navigate to="/" />;
   return <AppShell>{children}</AppShell>;
@@ -89,13 +98,8 @@ function App() {
     checkAuth();
   }, [checkAuth]);
 
-  if (isCheckingAuth && !isAuth)
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-slate-50 text-slate-800">
-        <Loader className="size-10 animate-spin text-blue-600 mb-3" />
-        <p className="text-sm font-medium text-slate-500">Loading MedSchedule...</p>
-      </div>
-    );
+  // For public routes (/ or login/signup), render immediately so the page is never blank or stuck on a spinner
+  // Protected routes will independently handle auth requirements
 
   return (
     <div data-theme="retro">
