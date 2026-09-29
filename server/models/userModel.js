@@ -23,16 +23,17 @@ const User = new PostgresModel({
       return bcrypt.compare(candidatePassword, this.password);
     },
     generateAuthToken() {
+      const secret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || 'medschedule_default_jwt_secret_dev_key_12345';
       return jwt.sign(
-    {
-      id: this._id,
-      email: this.email,
-      role: this.role,
-    },
-    process.env.JWT_SECRET_KEY,
-    {
-      expiresIn: process.env.JWT_EXPIRE || '7d',
-    }
+        {
+          id: this._id,
+          email: this.email,
+          role: this.role,
+        },
+        secret,
+        {
+          expiresIn: process.env.JWT_EXPIRE || '7d',
+        }
       );
     },
     generateCode() {

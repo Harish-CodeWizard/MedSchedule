@@ -50,7 +50,8 @@ export const authenticateUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("User is not authenticated.", 401));
   }
 
-  const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  const secret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || 'medschedule_default_jwt_secret_dev_key_12345';
+  const decodedData = jwt.verify(token, secret);
 
   req.user = await User.findById(decodedData.id);
   if (!req.user) {

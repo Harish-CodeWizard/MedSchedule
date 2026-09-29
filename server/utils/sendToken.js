@@ -10,7 +10,7 @@ export const sendToken = (user, statusCode, message, res) => {
             email: user.email,
             role: user.role,
           },
-          process.env.JWT_SECRET_KEY,
+          process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || 'medschedule_default_jwt_secret_dev_key_12345',
           {
             expiresIn: process.env.JWT_EXPIRE || '7d',
           }
