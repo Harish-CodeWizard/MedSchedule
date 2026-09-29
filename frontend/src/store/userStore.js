@@ -8,7 +8,7 @@ const userStore = create((set) => ({
   singleUser:null,
   loading: false,
   isAuth: false,
-isCheckingAuth:true,
+  isCheckingAuth: false,
 
 
 

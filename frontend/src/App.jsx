@@ -96,7 +96,7 @@ function App() {
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   // For public routes (/ or login/signup), render immediately so the page is never blank or stuck on a spinner
   // Protected routes will independently handle auth requirements
