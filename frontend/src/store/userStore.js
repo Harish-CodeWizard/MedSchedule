@@ -14,7 +14,7 @@ isCheckingAuth:true,
 
   checkAuth: async () => {
     try {
-      const res = await axiosInstance.get("/user/me", { timeout: 8000 });
+      const res = await axiosInstance.get("/user/me", { timeout: 3500 });
       set({ isAuth: true, user: res.data.user });
     } catch (error) {
       console.log("Error in checkAuth:", error);
