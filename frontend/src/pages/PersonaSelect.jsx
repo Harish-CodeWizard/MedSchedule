@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Clipboard, Stethoscope, Activity, Box, Camera, Pill, Heart, Zap } from "lucide-react"; // All icons
 import AuthImagePattern from "../components/AuthImagePattern";
 
@@ -19,9 +19,6 @@ const roles = [
 
   const handleRoleSelect = (role) => {
     navigate("/signup", { state: { role } });
-  };
-   const handle = () => {
-    navigate("/login");
   };
 
   return (
@@ -45,9 +42,9 @@ const roles = [
           <div className="text-center">
             <p className="text-gray-500">
               Already have an account?{" "}
-              <button type="button" onClick={() => handle()} className="text-blue-600 font-semibold hover:underline">
+              <Link to="/login" className="text-blue-600 font-semibold hover:underline">
                 Sign in
-              </button>
+              </Link>
             </p>
           </div>
 

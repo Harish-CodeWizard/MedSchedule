@@ -102,7 +102,7 @@ function App() {
   // Protected routes will independently handle auth requirements
 
   return (
-    <div data-theme="retro">
+    <div className="min-h-screen">
       <ActionProgress />
       <Routes>
         {/* Public Routes */}
