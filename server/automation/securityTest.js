@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import { app } from '../index.js';
 import connectDB from '../database/dbConnection.js';
+import { closeDatabase } from '../database/postgres.js';
 import User from '../models/userModel.js';
 import Patient from '../models/PatientModel.js';
 
@@ -285,7 +286,8 @@ async function cleanup() {
     console.log('Test server closed.');
   }
 
-  console.log('PostgreSQL connection remains managed by the test process.');
+  await closeDatabase();
+  console.log('PostgreSQL connection closed.');
 }
 
 async function main() {

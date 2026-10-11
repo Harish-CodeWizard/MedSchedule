@@ -92,7 +92,7 @@ function ActionProgress() {
 }
 
 function App() {
-  const { isAuth, checkAuth, isCheckingAuth, user } = userStore();
+  const { isAuth, checkAuth, user } = userStore();
 
   useEffect(() => {
     checkAuth();

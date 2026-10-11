@@ -34,6 +34,7 @@ const handleCancelEdit = () => {
     notes: '',
     calculatedQuantity: 0,
     charges: 0,
+    pharmacyCharges: 0,
     status: 'Pending',
     PharmacyPerson: '',
   });
@@ -60,6 +61,7 @@ const handleCancelEdit = () => {
     notes: '',
     calculatedQuantity: 0,
     charges: 0,
+    pharmacyCharges: 0,
     status: 'Pending',
     PharmacyPerson:'',
   });
@@ -191,6 +193,7 @@ useEffect(() => {
       ...newMedicine,
       id: Date.now(),
       quantity: finalQuantity ? parseInt(finalQuantity) : undefined,
+      pharmacyCharges: Number(newMedicine.pharmacyCharges) || 0,
       // Remove calculatedQuantity from final object
       calculatedQuantity: undefined
     };
@@ -206,6 +209,7 @@ useEffect(() => {
       medicineName: '',
       dosage: '',
       quantity: '',
+      pharmacyCharges: 0,
       frequency: '',
       timing: '',
       duration: '',
@@ -259,6 +263,12 @@ const handleSavePrescription = async () => {
     // Remove temporary id and calculatedQuantity from medicines
     const cleanedMedicines = prescriptionData.medicines.map(({ id: _id, calculatedQuantity: _calcQty, ...rest }) => rest);
     prescriptionData.medicines = cleanedMedicines;
+    prescriptionData.charges = cleanedMedicines.reduce(
+      (total, medicine) => total + (Number(medicine.pharmacyCharges) || 0) * (Number(medicine.quantity) || 0),
+      0
+    );
+    prescriptionData.paymentStatus = 'unpaid';
+    prescriptionData.fulfillmentStatus = 'awaiting_payment';
 
     // Get the latest patient data
     const currentPatientData = await getPatientById(patientID);
@@ -1007,6 +1017,21 @@ const handlePrintPrescription = () => {
                   placeholder="e.g., Avoid cold water, Take with milk"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price per unit *
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={newMedicine.pharmacyCharges}
+                  onChange={(e) => setNewMedicine({...newMedicine, pharmacyCharges: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
             </div>
 
             {/* Calculation Summary */}
@@ -1037,7 +1062,7 @@ const handlePrintPrescription = () => {
 
             <button
               onClick={handleAddMedicine}
-              disabled={!newMedicine.medicineName.trim() || !newMedicine.frequency || !newMedicine.timing || !newMedicine.duration || !newMedicine.quantity}
+              disabled={!newMedicine.medicineName.trim() || !newMedicine.frequency || !newMedicine.timing || !newMedicine.duration || !newMedicine.quantity || Number(newMedicine.pharmacyCharges) <= 0}
               className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="w-4 h-4" />

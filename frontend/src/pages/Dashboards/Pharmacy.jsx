@@ -7,6 +7,7 @@ import {
   History
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import FulfillmentStatus from '../../components/FulfillmentStatus.jsx';
 
 function Pharmacy() {
   const { getPatientByUniqueId, singlePatient, updatePatient } = patientStore();
@@ -32,44 +33,6 @@ function Pharmacy() {
 
   const navigate = useNavigate();
 
-  // const handleSearch = async () => {
-  //   if (!searchId.trim()) {
-  //     alert('Please enter Patient ID');
-  //     return;
-  //   }
-    
-  //   setLoading(true);
-  //   try {
-  //     await getPatientByUniqueId(searchId);
-      
-  //     if (singlePatient) {
-  //       setPatientFound(true);
-  //       const pendingPrescriptions = singlePatient.prescriptions?.filter(p => 
-  //         p.status === 'Pending' || p.status === 'pending'
-  //       );
-        
-  //       if (pendingPrescriptions.length > 0) {
-  //         setSelectedPrescription(pendingPrescriptions[0]);
-  //         const medicinesWithCharges = pendingPrescriptions[0].medicines.map(med => ({
-  //           ...med,
-  //           pharmacyCharges: '',
-  //           dispensed: false
-  //         }));
-  //         setUpdatedMedicines(medicinesWithCharges);
-  //         calculateTotal(medicinesWithCharges);
-  //       }
-  //     } else {
-  //       setPatientFound(false);
-  //       alert('Patient not found with this ID');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error searching patient:', error);
-  //     alert('Error searching patient');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   // CORRECTED calculateTotal function
   
   const handleSearch = async () => {
@@ -88,8 +51,9 @@ function Pharmacy() {
     // Check if patient was actually found
     if (patient) {
       setPatientFound(true);
-      const pendingPrescriptions = patient.prescriptions?.filter(p => 
-        p.status === 'Pending' || p.status === 'pending'
+      const pendingPrescriptions = patient.prescriptions?.filter(p =>
+        (p.status === 'Pending' || p.status === 'pending') &&
+        p.paymentStatus === 'paid'
       );
       
       if (pendingPrescriptions.length > 0) {
@@ -250,6 +214,7 @@ const handleSaveManualRecord = async () => {
           return {
             ...p,
             status: 'Completed',
+            fulfillmentStatus: 'fulfilled',
             completedDate: new Date().toISOString(),
             charges: totalChargesValue,
             PharmacyPerson: name,
@@ -781,8 +746,16 @@ const handleSaveManualRecord = async () => {
                           'bg-yellow-100 text-yellow-800'
                         }`}>
                           {selectedPrescription.status}
-                        </span>
+                      </span>
                       } />
+                      <FulfillmentStatus
+                          method={selectedPrescription.fulfillmentMethod}
+                          status={selectedPrescription.fulfillmentStatus}
+                      />
+                      <InfoRow
+                          label="Payment"
+                          value={<span className="font-semibold text-emerald-700">Paid online</span>}
+                      />
                     </div>
                   ) : (
                     <p className="text-gray-500">No pending prescriptions found</p>

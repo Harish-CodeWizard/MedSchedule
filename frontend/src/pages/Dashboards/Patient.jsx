@@ -14,6 +14,7 @@ import {
 import toast from "react-hot-toast";
 import { axiosInstance } from '../../lib/axios.js';
 import FulfillmentOptions from '../../components/FulfillmentOptions.jsx';
+import FulfillmentStatus from '../../components/FulfillmentStatus.jsx';
 
 function Patient() {
   const { user } = userStore();
@@ -71,7 +72,10 @@ function Patient() {
     const sessionId = new URLSearchParams(window.location.search).get('session_id');
     if (!sessionId) return;
     axiosInstance.get(`/payment/verify/${sessionId}`)
-      .then(() => toast.success('Payment confirmed'))
+      .then(async () => {
+        await getData();
+        toast.success('Payment confirmed. Your medicine order is being prepared.');
+      })
       .catch(() => toast.error('Payment confirmation is still pending'));
   }, []);
 
@@ -592,6 +596,22 @@ function Patient() {
                                 </button>
                               )}
                             </div>
+                            {prescription.paymentStatus === 'paid' && (
+                              <div className="mt-4 space-y-2">
+                                <FulfillmentStatus
+                                  method={prescription.fulfillmentMethod}
+                                  status={prescription.fulfillmentStatus}
+                                />
+                                {prescription.fulfillmentMethod === 'delivery' && prescription.deliveryAddress && (
+                                  <p className="text-sm text-gray-600">
+                                    Delivery to: <span className="font-medium text-gray-900">{prescription.deliveryAddress}</span>
+                                  </p>
+                                )}
+                                <p className="text-sm text-emerald-700">
+                                  Payment complete. You can collect your prepared medicine without joining the regular pharmacy payment queue.
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                         

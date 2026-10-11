@@ -3,7 +3,6 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 const prescriptionStore = create((set) => ({
   medicines: [],
-  singleMedicine: null,
   loading: false,
 
   /* ================= CREATE Pharmacy Record ================= */
@@ -77,14 +76,7 @@ const prescriptionStore = create((set) => ({
   },
 
 
-
-
-
-
-
-
   /* =================  clearSinglePrescription ================= */
-  clearSinglePrescription: () => set({ singlePrescription: null }),
 }));
 
 export default prescriptionStore;

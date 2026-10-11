@@ -53,6 +53,7 @@ const patientStore = create((set) => ({
       const res = await axiosInstance.get(`/patient/${id}`);
 
       set({ singlePatient: res.data.patient });
+      return res.data.patient;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Patient not found");
     } finally {

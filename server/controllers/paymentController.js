@@ -38,6 +38,12 @@ export const createCheckoutSession = catchAsyncError(async (req, res, next) => {
   if (!stripe) return next(new ErrorHandler('Online payments are not configured. Add STRIPE_SECRET_KEY to server/.env.', 503));
 
   const { type, targetId, patientId, fulfillmentMethod, deliveryAddress } = req.body;
+  if (type === 'prescription' && !['takeaway', 'delivery'].includes(fulfillmentMethod)) {
+    return next(new ErrorHandler('Choose takeaway or delivery before payment.', 400));
+  }
+  if (type === 'prescription' && fulfillmentMethod === 'delivery' && !deliveryAddress?.trim()) {
+    return next(new ErrorHandler('A delivery address is required.', 400));
+  }
   const patient = await getPatientForRequest(req, patientId);
   const target = getPaymentTarget(patient, type, targetId);
   if (!target || target.amount <= 0) return next(new ErrorHandler('A payable charge could not be found for this item.', 400));
@@ -57,7 +63,7 @@ export const createCheckoutSession = catchAsyncError(async (req, res, next) => {
     deliveryAddress: type === 'prescription' && fulfillmentMethod === 'delivery' ? deliveryAddress || '' : null,
   });
 
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+  const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [{
