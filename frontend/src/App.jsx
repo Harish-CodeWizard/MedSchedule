@@ -34,7 +34,6 @@ import XrayPatientRegistration from "./pages/supportivePages/XrayPatientRegistra
 import WalkInXrayRecords from "./pages/supportivePages/XrayWalkInRecord";
 import BookAppointment from "./pages/BookAppointment";
 import AppShell from "./components/AppShell";
-import { dashboardPathForRole } from "./utils/navigation";
 
 const normalizeRole = (role) => {
   const map = {
@@ -106,14 +105,14 @@ function App() {
       <ActionProgress />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={!isAuth ? <PersonaSelect /> : <Navigate to={dashboardPathForRole(user?.role)} replace />} />
-        <Route path="/signup" element={!isAuth ? <SignUpPage /> : <Navigate to="/" />} />
-        <Route path="/login" element={!isAuth ? <LoginPage /> : <Navigate to="/" />} />
+        <Route path="/" element={<PersonaSelect />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/verify-email" element={!isAuth ? <VerifyEmailPage /> : <Navigate to="/" />} />
         <Route path="/forgot-password" element={!isAuth ? <ForgotEmailPage /> : <Navigate to="/" />} />
         <Route path="/verify-forgot" element={!isAuth ? <VerifyForgotPage /> : <Navigate to="/" />} />
         <Route path="/new-password" element={!isAuth ? <NewPasswordPage /> : <Navigate to="/" />} />
-        <Route path="/persona-select" element={!isAuth ? <PersonaSelect /> : <Navigate to="/" />} />
+        <Route path="/persona-select" element={<PersonaSelect />} />
 
         {/* Protected Routes */}
         <Route
