@@ -1,13 +1,29 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, ShieldCheck, Stethoscope, ClipboardList, FlaskConical, ScanLine, Pill, UserRound } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+  Stethoscope,
+  ShieldCheck,
+  ClipboardList,
+  FlaskConical,
+  ScanLine,
+  Pill,
+  UserRound,
+} from 'lucide-react';
+
 import AuthImagePattern from '../components/AuthImagePattern';
 import userStore from '../store/userStore';
-import { dashboardPathForRole } from "../utils/navigation";
+import { dashboardPathForRole } from '../utils/navigation';
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -17,166 +33,226 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const success = await loginUser(formData);
-    if (success) navigate(dashboardPathForRole(userStore.getState().user?.role));
+
+    if (success) {
+      navigate(
+        dashboardPathForRole(userStore.getState().user?.role)
+      );
+    }
   };
 
   const demoAccounts = [
-    { role: 'Admin', email: 'admin@medschedule.demo', icon: ShieldCheck, tone: 'text-primary' },
-    { role: 'Reception', email: 'reception@medschedule.demo', icon: ClipboardList, tone: 'text-secondary' },
-    { role: 'Doctor', email: 'doctor@medschedule.demo', icon: Stethoscope, tone: 'text-accent' },
-    { role: 'Lab', email: 'lab@medschedule.demo', icon: FlaskConical, tone: 'text-info' },
-    { role: 'X-Ray', email: 'xray@medschedule.demo', icon: ScanLine, tone: 'text-warning' },
-    { role: 'Pharmacy', email: 'pharmacy@medschedule.demo', icon: Pill, tone: 'text-success' },
-    { role: 'Patient', email: 'patient@medschedule.demo', icon: UserRound, tone: 'text-error' },
+    { role: 'Admin', email: 'admin@medschedule.demo', icon: ShieldCheck, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { role: 'Reception', email: 'reception@medschedule.demo', icon: ClipboardList, color: 'text-pink-600', bg: 'bg-pink-50' },
+    { role: 'Doctor', email: 'doctor@medschedule.demo', icon: Stethoscope, color: 'text-teal-600', bg: 'bg-teal-50' },
+    { role: 'Lab', email: 'lab@medschedule.demo', icon: FlaskConical, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { role: 'X-Ray', email: 'xray@medschedule.demo', icon: ScanLine, color: 'text-amber-600', bg: 'bg-amber-50' },
+    { role: 'Pharmacy', email: 'pharmacy@medschedule.demo', icon: Pill, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { role: 'Patient', email: 'patient@medschedule.demo', icon: UserRound, color: 'text-rose-600', bg: 'bg-rose-50' },
   ];
 
   const handleDemoLogin = async (account) => {
-    const credentials = { email: account.email, password: 'Demo@12345' };
+    const credentials = {
+      email: account.email,
+      password: 'Demo@12345',
+    };
+
     setFormData(credentials);
+
     const success = await loginUser(credentials);
-    if (success) navigate(dashboardPathForRole(userStore.getState().user?.role));
+
+    if (success) {
+      navigate(
+        dashboardPathForRole(userStore.getState().user?.role)
+      );
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7fb] lg:grid lg:grid-cols-[0.9fr_1.1fr]">
-      {/* Left side - Login form */}
-      <div className="flex items-center justify-center px-6 py-10 sm:px-12 lg:px-20">
-        <div className="w-full max-w-lg space-y-8">
-          {/* Header */}
-        <div className="flex flex-col items-center gap-2 group">
-  <div className="flex size-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-600/25">
-    <MessageSquare className="w-7 h-7" />
-  </div>
-  <h1 className="text-3xl font-black mt-2 tracking-tight text-slate-900">Welcome back</h1>
-  <p className="text-slate-500">
-  Sign in to continue to your account
-  </p>
+    <div className="grid min-h-screen bg-[#f4f7fb] lg:h-dvh lg:min-h-0 lg:grid-cols-[0.9fr_1.1fr] lg:overflow-hidden">
 
-</div>
+      {/* Left side: Sign in */}
+      <main className="flex min-h-0 flex-col justify-start overflow-y-auto px-5 py-6 sm:px-10 lg:px-8 xl:px-14">
+        <div className="mx-auto w-full max-w-md space-y-3">
+
+          {/* Header */}
+          <header className="flex flex-col items-center text-center">
+            <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+              <Stethoscope size={23} />
+            </div>
+
+            <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              Welcome back
+            </h1>
+
+            <p className="text-sm text-slate-500">
+              Sign in to continue to your account
+            </p>
+          </header>
 
           {/* Login form */}
-          <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-2.5 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-lg shadow-slate-200/40 sm:p-5"
+          >
             {/* Email */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Email</span>
+            <div>
+              <label
+                htmlFor="login-email"
+                className="mb-1.5 block text-sm font-semibold text-slate-700"
+              >
+                Email address
               </label>
-              <div className="flex h-14 items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 transition focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10">
-                <Mail className="w-5 h-5 text-base-content/40" />
+
+              <div className="flex h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3.5 transition focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10">
+                <Mail size={18} className="shrink-0 text-slate-400" />
+
                 <input
+                  id="login-email"
                   type="email"
+                  autoComplete="username"
                   required
-                  placeholder="you@gmail.com"
-                  className="grow bg-transparent text-slate-900 outline-none"
+                  placeholder="you@example.com"
+                  className="h-full min-w-0 grow bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                   value={formData.email}
                   onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
+                    setFormData({
+                      ...formData,
+                      email: e.target.value,
+                    })
                   }
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Password</span>
+            <div>
+              <label
+                htmlFor="login-password"
+                className="mb-1.5 block text-sm font-semibold text-slate-700"
+              >
+                Password
               </label>
-              <div className="relative mt-1">
-                {/* Lock icon */}
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                  <Lock className="w-5 h-5 text-base-content/40" />
-                </div>
-                {/* Input */}
+
+              <div className="flex h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3.5 transition focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10">
+                <Lock size={18} className="shrink-0 text-slate-400" />
+
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
-                  className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-10 pr-10 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
-                  placeholder="........"
+                  autoComplete="current-password"
+                  required
+                  placeholder="Enter your password"
+                  className="h-full min-w-0 grow bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                   value={formData.password}
                   onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
+                    setFormData({
+                      ...formData,
+                      password: e.target.value,
+                    })
                   }
                 />
-                {/* Eye toggle */}
+
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center z-10"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="shrink-0 rounded-md p-1 text-slate-400 transition hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-base-content/40" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-base-content/40" />
-                  )}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            {/* Submit button */}
+            {/* Forgot password */}
+            <div className="flex justify-end">
+              <Link
+                to="/forgot-password"
+                className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            {/* Submit */}
             <button
               type="submit"
-              className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 text-base font-bold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={loading}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>
-                  <Loader2 className="size-5 animate-spin" />
-                  Loading...
+                  <Loader2 size={18} className="animate-spin" />
+                  Signing in...
                 </>
               ) : (
-                <>Sign in <span className="text-blue-200 transition group-hover:translate-x-1">→</span></>
+                <>
+                  Sign in
+                  <span aria-hidden="true">→</span>
+                </>
               )}
             </button>
           </form>
 
-          <div className="rounded-3xl border border-blue-100 bg-blue-50/70 p-5">
-            <div className="mb-1 flex items-center justify-between"><p className="text-sm font-bold text-slate-900">Explore with a demo account</p><span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700">Ready</span></div>
-            <p className="mb-4 text-xs text-slate-500">Choose a workspace to sign in instantly. All demos use the same password.</p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {/* Demo accounts */}
+          <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-3.5 sm:p-4">
+            <div className="mb-1 flex items-center justify-between gap-2">
+              <h2 className="text-sm font-bold text-slate-900">
+                Try a demo account
+              </h2>
+
+              <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                Available
+              </span>
+            </div>
+
+            <p className="mb-3 text-xs leading-5 text-slate-500">
+              Select a role to sign in with the demo credentials.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {demoAccounts.map((account) => {
                 const Icon = account.icon;
+
                 return (
                   <button
                     key={account.role}
                     type="button"
                     onClick={() => handleDemoLogin(account)}
                     disabled={loading}
-                    className="flex min-h-14 items-center justify-start gap-3 rounded-2xl border border-white bg-white px-3 text-left normal-case shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md disabled:cursor-wait disabled:opacity-50"
+                    className="flex min-h-11 min-w-0 items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-2.5 py-2 text-left transition hover:border-blue-300 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Icon className={`size-4 ${account.tone}`} />
-                    <span className="flex flex-col items-start leading-tight">
-                      <span>{account.role}</span>
-                      <span className="text-[10px] text-slate-400">Use demo account</span>
+                    <span
+                      className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${account.bg} ${account.color}`}
+                    >
+                      <Icon size={16} />
+                    </span>
+
+                    <span className="truncate text-xs font-semibold text-slate-700">
+                      {account.role}
                     </span>
                   </button>
                 );
               })}
             </div>
-          </div>
 
-          {/* Footer */}
-          {/* <div className="text-center">
-            <p className="text-base-content/60">
-              Don&apos;t have an account?{' '}
-              <span onClick={() => handle(role)} className="link link-primary">
-                Create account
-              </span>
+            <p className="mt-3 text-center text-[11px] text-slate-400">
+              All demo accounts use the same password.
             </p>
-          </div> */}
-          <div className="text-center">
-            <p className="text-base-content/60">
-              <Link to="/forgot-password" className="font-semibold text-blue-600 hover:underline">
-                Forgot Password?
-              </Link>
-            </p>
-          </div>
+          </section>
+
+          <p className="pb-1 text-center text-xs text-slate-400">
+            MedSchedule · Digital Outpatient Management System
+          </p>
         </div>
-      </div>
+      </main>
 
-      {/* Right side - Pattern & message */}
+      {/* Right side: Keep your existing theme and component */}
       <AuthImagePattern
-        title="Join our community"
-        subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
+        title="Your healthcare, connected"
+        subtitle="A single platform for appointments, doctors, diagnostics and patient care."
       />
     </div>
   );
