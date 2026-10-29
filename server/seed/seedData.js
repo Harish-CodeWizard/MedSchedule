@@ -13,19 +13,39 @@ dotenv.config();
 const DEMO_PASSWORD = 'Demo@12345';
 const sampleUsers = [
   { name: 'Demo Administrator', email: 'admin@medschedule.demo', password: DEMO_PASSWORD, role: 'Admin', uniqueId: 'admin-demo-id', verified: true },
+  { name: 'Elena Brooks', email: 'admin.elena@medschedule.demo', password: DEMO_PASSWORD, role: 'Admin', uniqueId: 'admin-demo-002', verified: true },
   { name: 'Demo Receptionist', email: 'reception@medschedule.demo', password: DEMO_PASSWORD, role: 'Reception', uniqueId: 'reception-demo-id', verified: true },
+  { name: 'Marcus Chen', email: 'reception.marcus@medschedule.demo', password: DEMO_PASSWORD, role: 'Reception', uniqueId: 'reception-demo-002', verified: true },
   { name: 'Dr. Maya Patel', email: 'doctor@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-id', verified: true, SpecialistDoctor: 'Cardiology', licenseNumber: 'MED-DEMO-001', ConsultationCharges: 80, ConsultationTimePerPatient: '30', AppointmentStart: '09:00' },
   { name: 'Dr. Jordan Lee', email: 'doctor.jordan@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-002', verified: true, SpecialistDoctor: 'General Medicine', licenseNumber: 'MED-DEMO-002', ConsultationCharges: 80, ConsultationTimePerPatient: '30', AppointmentStart: '09:00' },
   { name: 'Dr. Sara Khan', email: 'doctor.sara@medschedule.demo', password: DEMO_PASSWORD, role: 'Doctor', uniqueId: 'doctor-demo-003', verified: true, SpecialistDoctor: 'Radiology', licenseNumber: 'MED-DEMO-003', ConsultationCharges: 80, ConsultationTimePerPatient: '30', AppointmentStart: '10:00' },
   { name: 'Demo Lab Technician', email: 'lab@medschedule.demo', password: DEMO_PASSWORD, role: 'Lab', uniqueId: 'lab-demo-id', verified: true },
+  { name: 'Priya Nair', email: 'lab.priya@medschedule.demo', password: DEMO_PASSWORD, role: 'Lab', uniqueId: 'lab-demo-002', verified: true },
   { name: 'Demo X-Ray Technician', email: 'xray@medschedule.demo', password: DEMO_PASSWORD, role: 'X-Ray', uniqueId: 'xray-demo-id', verified: true },
+  { name: 'Owen Williams', email: 'xray.owen@medschedule.demo', password: DEMO_PASSWORD, role: 'X-Ray', uniqueId: 'xray-demo-002', verified: true },
   { name: 'Demo Pharmacist', email: 'pharmacy@medschedule.demo', password: DEMO_PASSWORD, role: 'Pharmacy', uniqueId: 'pharmacy-demo-id', verified: true },
+  { name: 'Fatima Hassan', email: 'pharmacy.fatima@medschedule.demo', password: DEMO_PASSWORD, role: 'Pharmacy', uniqueId: 'pharmacy-demo-002', verified: true },
   { name: 'Aarav Sharma', email: 'patient@medschedule.demo', password: DEMO_PASSWORD, role: 'Patient', uniqueId: 'patient-demo-id', verified: true },
+  { name: 'Mia Thompson', email: 'patient.mia@medschedule.demo', password: DEMO_PASSWORD, role: 'Patient', uniqueId: 'patient-demo-002', verified: true },
+  { name: 'Daniel Rivera', email: 'patient.daniel@medschedule.demo', password: DEMO_PASSWORD, role: 'Patient', uniqueId: 'patient-demo-003', verified: true },
 ];
 
 const openSourceXrayImages = [
-  'https://commons.wikimedia.org/wiki/Special:FilePath/Chest%20X-ray%20PA%203-8-2010.png',
-  'https://commons.wikimedia.org/wiki/Special:FilePath/Chest%20X-ray.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/9/9e/Chest_x-ray_-_posteroanterior_view.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/9/9e/Chest_x-ray_-_posteroanterior_view.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/9/9e/Chest_x-ray_-_posteroanterior_view.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/7/79/First_medical_X-ray_by_Wilhelm_R%C3%B6ntgen_of_his_wife_Anna_Bertha_Ludwig%27s_hand_-_18951222.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/e/ef/Knee_plain_X-ray_weight_bearing.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/3/34/Lateral_lumbar_x_ray.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/c/cf/X-ray_of_normal_right_foot_by_lateral_projection.jpg',
+];
+
+const xrayStudies = [
+  { testName: 'Chest X-Ray', imageType: 'Chest PA view', diagnosis: 'Routine chest examination' },
+  { testName: 'Hand X-Ray', imageType: 'Hand AP and oblique views', diagnosis: 'Hand and wrist assessment' },
+  { testName: 'Knee X-Ray', imageType: 'Knee AP and lateral views', diagnosis: 'Knee joint assessment' },
+  { testName: 'Spine X-Ray', imageType: 'Lumbar spine AP and lateral views', diagnosis: 'Spinal alignment assessment' },
+  { testName: 'Foot X-Ray', imageType: 'Foot AP and lateral views', diagnosis: 'Foot and ankle assessment' },
 ];
 
 async function seed() {
@@ -150,11 +170,11 @@ async function seed() {
       gender: patient.gender,
       doctorId: doctor._id,
       doctorName: doctor.name,
-      testName: 'Chest X-Ray',
+      testName: xrayStudies[0].testName,
       category: 'Radiology',
-      diagnosis: 'Routine chest examination',
-      overallNotes: 'Open-license sample image for demonstration only.',
-      records: openSourceXrayImages.map((image, index) => ({ image, cloudinary_id: `demo-xray-${index + 1}`, note: 'Demo image', filename: `demo-chest-xray-${index + 1}.jpg` })),
+      diagnosis: xrayStudies[0].diagnosis,
+      overallNotes: 'Open-license sample images for demonstration only.',
+      records: openSourceXrayImages.slice(0, 3).map((image, index) => ({ image, imageType: ['Chest PA view', 'Chest lateral view', 'Chest follow-up'][index], cloudinary_id: `demo-xray-${index + 1}`, note: 'Open-license demo image', filename: `demo-chest-xray-${index + 1}.jpg` })),
       performedBy: 'Demo X-Ray Technician',
       status: 'Completed',
       priority: 'Routine',
@@ -168,11 +188,11 @@ async function seed() {
       gender: demoPatient.gender,
       doctorId: doctor._id,
       doctorName: doctor.name,
-      testName: ['Knee X-Ray', 'Chest X-Ray', 'Hand X-Ray', 'Spine X-Ray'][index],
+      testName: xrayStudies[index + 1].testName,
       category: 'Radiology',
-      diagnosis: 'Demonstration imaging record',
-      overallNotes: 'Open-license sample image for demonstration only.',
-      records: [{ image: openSourceXrayImages[index % openSourceXrayImages.length], cloudinary_id: `demo-xray-${index + 3}`, note: 'Demo image', filename: `demo-xray-${index + 3}.jpg` }],
+      diagnosis: xrayStudies[index + 1].diagnosis,
+      overallNotes: `Open-license ${xrayStudies[index + 1].imageType} sample for demonstration only.`,
+      records: [{ image: openSourceXrayImages[index + 2], imageType: xrayStudies[index + 1].imageType, cloudinary_id: `demo-xray-${index + 4}`, note: 'Open-license demo image', filename: `demo-${xrayStudies[index + 1].testName.toLowerCase().replaceAll(' ', '-')}.jpg` }],
       performedBy: 'Demo X-Ray Technician',
       status: index === 2 ? 'Pending' : 'Completed',
       priority: index === 0 ? 'Urgent' : 'Routine',
@@ -189,7 +209,7 @@ async function seed() {
       priority: 'routine',
       performedBy: 'Demo X-Ray Technician',
       status: 'Completed',
-      images: [{ image: openSourceXrayImages[0], cloudinary_id: 'demo-walkin-xray-1', note: 'Open-license demo image', filename: 'walkin-demo-xray.jpg' }],
+      images: [{ image: openSourceXrayImages[0], imageType: 'Chest PA view', cloudinary_id: 'demo-walkin-xray-1', note: 'Open-license demo image', filename: 'walkin-demo-xray.jpg' }],
     });
 
     await Medicine.create({

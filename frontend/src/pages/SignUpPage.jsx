@@ -60,25 +60,23 @@ function SignUpPage() {
 
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
+    <div className="min-h-screen grid bg-slate-50 lg:grid-cols-2">
       {/* left side */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12">
-        <div className="w-full max-w-md space-y-8">
-          <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md space-y-7">
+          <div className="w-full max-w-md space-y-7">
             {/* LOGO */}
             <div className="text-center mb-8">
               <div className="flex flex-col items-center gap-2 group">
-                <div
-                  className="size 12 rounded-x1 bg-primary/10 flex items-center justify-center
-group-hover:bg-primary/20 transition-colors"
-                />
-                <MessageSquare className="size-6 text-primary" />
+                <div className="flex size-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/25">
+                  <MessageSquare className="size-7" />
+                </div>
               </div>
-              <h1 className="text-2xl font-bold mt-2">Create Account</h1>
-              <p className="text-base-content/60">
- Get started with your free account
+              <h1 className="text-3xl font-black mt-2 text-slate-900">Create your account</h1>
+              <p className="text-slate-500">
+ Get started with a secure MedSchedule workspace
               </p>
-              <h1 className="text-xl font-semibold text-blue-400 underline mt-2">{role}</h1>
+              <h1 className="mt-3 inline-block rounded-full bg-blue-50 px-4 py-1.5 text-sm font-bold text-blue-700">{role}</h1>
             </div>
 
 <form onSubmit={handleSubmit} className="space-y-6">
@@ -186,14 +184,16 @@ group-hover:bg-primary/20 transition-colors"
   </div>
 </div>
 
-<button type="submit" className="btn btn-primary w-full" disabled={loading}>
+<button type="submit" className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 text-base font-bold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60" disabled={loading}>
 {loading ? (
 <>
 <Loader2 className="size-5 animate-spin" />
 Loading...
 </>
 ):(
-"Sign in"
+<>
+Create account <span className="text-blue-200 transition group-hover:translate-x-1">→</span>
+</>
 )}
 </button>
 
@@ -205,7 +205,7 @@ Loading...
 <div className="text-center">
 <p className="text-base-content/60">
 Already have an account?{" "}
-<span onClick={() => handle(role)} className="link link-primary">
+<span onClick={() => handle(role)} className="cursor-pointer font-semibold text-blue-600 hover:underline">
 Sign in
 </span>
 </p>
@@ -227,7 +227,5 @@ subtitle="Connect with friends, share moments, and stay in touch with your loved
 }
 
 export default SignUpPage;
-
-
 
 
